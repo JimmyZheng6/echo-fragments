@@ -1,0 +1,432 @@
+import {
+    create_rectangle,
+    create_circle,
+    query_position,
+    update_position,
+    update_color,
+    input_key_down,
+    update_loop,
+    update_to_top,
+    set_dimensions,
+    build_game
+} from "arcade_2d";
+
+
+
+const movement_dist = 5;
+
+function add_vectors(to, from) {
+    to[0] = to[0] + from[0];
+    to[1] = to[1] + from[1];
+}
+
+// ====================
+// 地图参数
+// ====================
+
+//==================================================
+// 地图参数
+//==================================================
+
+const WIDTH = 600;
+const HEIGHT = 600;
+const TILE = 30;
+
+const PLAYER_SIZE = TILE * 0.5;
+const HALF = PLAYER_SIZE / 2;
+
+set_dimensions([WIDTH, HEIGHT]);
+
+const ROWS = math_floor(HEIGHT / TILE);
+const COLS = math_floor(WIDTH / TILE);
+
+const map = [];
+
+let player_row = 1;
+let player_col = 1;
+
+const NOTE_NUM = 2;
+
+//==================================================
+// 初始化地图
+//==================================================
+
+for (let i = 0; i < ROWS; i = i + 1) {
+    map[i] = [];
+    for (let j = 0; j < COLS; j = j + 1) {
+        map[i][j] = 0;
+    }
+}
+
+for (let i = 0; i < ROWS; i = i + 1) {
+    map[i][0] = 1;
+    map[i][COLS - 1] = 1;
+}
+
+for (let j = 0; j < COLS; j = j + 1) {
+    map[0][j] = 1;
+    map[ROWS - 1][j] = 1;
+}
+
+//==================================================
+// 判断是否围死
+//==================================================
+
+function blocked(r, c) {
+
+    if (r <= 0 || r >= ROWS - 1 ||
+        c <= 0 || c >= COLS - 1) {
+        return false;
+    }
+
+    if (map[r][c] === 1) {
+        return false;
+    }
+
+    let cnt = 0;
+
+    if (map[r - 1][c] === 1) {
+        cnt = cnt + 1;
+    }
+
+    if (map[r + 1][c] === 1) {
+        cnt = cnt + 1;
+    }
+
+    if (map[r][c - 1] === 1) {
+        cnt = cnt + 1;
+    }
+
+    if (map[r][c + 1] === 1) {
+        cnt = cnt + 1;
+    }
+
+    return cnt === 4;
+}
+
+//==================================================
+// 随机障碍
+//==================================================
+
+function generate_obstacles() {
+
+    for (let i = 1; i < ROWS - 1; i = i + 1) {
+        for (let j = 1; j < COLS - 1; j = j + 1) {
+            map[i][j] = 0;
+        }
+    }
+
+    map[ROWS - 2][COLS - 2] = 0;
+
+    for (let i = 1; i < ROWS - 1; i = i + 1) {
+        for (let j = 1; j < COLS - 1; j = j + 1) {
+
+            if (i <= 2 && j <= 2) {
+                continue;
+            }
+
+            if (i >= ROWS - 3 && j >= COLS - 3) {
+                continue;
+            }
+
+            if (math_random() < 0.2) {
+
+                map[i][j] = 1;
+
+                if (blocked(i - 1, j) ||
+                    blocked(i + 1, j) ||
+                    blocked(i, j - 1) ||
+                    blocked(i, j + 1)) {
+
+                    map[i][j] = 0;
+                }
+            }
+        }
+    }
+
+    map[player_row][player_col] = 2;
+    map[ROWS - 2][COLS - 2] = 4;
+}
+
+//==================================================
+// BFS检查地图是否连通
+//==================================================
+
+function map_ok() {
+
+    const visited = [];
+
+    for (let i = 0; i < ROWS; i = i + 1) {
+        visited[i] = [];
+        for (let j = 0; j < COLS; j = j + 1) {
+            visited[i][j] = false;
+        }
+    }
+
+    const queue = [];
+    queue[0] = [player_row, player_col];
+    visited[player_row][player_col] = true;
+
+    let head = 0;
+
+    while (head < array_length(queue)) {
+
+        const cell = queue[head];
+        head = head + 1;
+
+        const r = cell[0];
+        const c = cell[1];
+
+        if (r === ROWS - 2 && c === COLS - 2) {
+            return true;
+        }
+
+        if (r > 0 && !visited[r - 1][c] && map[r - 1][c] !== 1) {
+            visited[r - 1][c] = true;
+            queue[array_length(queue)] = [r - 1, c];
+        }
+
+        if (r < ROWS - 1 && !visited[r + 1][c] && map[r + 1][c] !== 1) {
+            visited[r + 1][c] = true;
+            queue[array_length(queue)] = [r + 1, c];
+        }
+
+        if (c > 0 && !visited[r][c - 1] && map[r][c - 1] !== 1) {
+            visited[r][c - 1] = true;
+            queue[array_length(queue)] = [r, c - 1];
+        }
+
+        if (c < COLS - 1 && !visited[r][c + 1] && map[r][c + 1] !== 1) {
+            visited[r][c + 1] = true;
+            queue[array_length(queue)] = [r, c + 1];
+        }
+    }
+
+    return false;
+}
+
+let tries = 0;
+
+while (true) {
+
+    generate_obstacles();
+
+    if (map_ok()) {
+        break;
+    }
+
+    tries = tries + 1;
+
+    if (tries > 100) {
+        break;
+    }
+}
+//==============================
+// 判断一个位置是否可达
+//==============================
+function reachable(target_r, target_c) {
+
+    const visited = [];
+
+    for (let i = 0; i < ROWS; i = i + 1) {
+        visited[i] = [];
+        for (let j = 0; j < COLS; j = j + 1) {
+            visited[i][j] = false;
+        }
+    }
+
+    const queue = [];
+    queue[0] = [player_row, player_col];
+    visited[player_row][player_col] = true;
+
+    let head = 0;
+
+    while (head < array_length(queue)) {
+
+        const cell = queue[head];
+        head = head + 1;
+
+        const r = cell[0];
+        const c = cell[1];
+
+        if (r === target_r && c === target_c) {
+            return true;
+        }
+
+        if (r > 0 && !visited[r - 1][c] && map[r - 1][c] !== 1) {
+            visited[r - 1][c] = true;
+            queue[array_length(queue)] = [r - 1, c];
+        }
+
+        if (r < ROWS - 1 && !visited[r + 1][c] && map[r + 1][c] !== 1) {
+            visited[r + 1][c] = true;
+            queue[array_length(queue)] = [r + 1, c];
+        }
+
+        if (c > 0 && !visited[r][c - 1] && map[r][c - 1] !== 1) {
+            visited[r][c - 1] = true;
+            queue[array_length(queue)] = [r, c - 1];
+        }
+
+        if (c < COLS - 1 && !visited[r][c + 1] && map[r][c + 1] !== 1) {
+            visited[r][c + 1] = true;
+            queue[array_length(queue)] = [r, c + 1];
+        }
+    }
+
+    return false;
+}
+//==============================
+// 随机音符
+//==============================
+function spawn_note() {
+
+    while (true) {
+
+        const r = 1 + math_floor(math_random() * (ROWS - 3));
+        const c = 1 + math_floor(math_random() * (COLS - 3));
+
+        if (map[r][c] === 0 &&
+            reachable(r, c)) {
+
+            map[r][c] = 3;
+
+            break;
+        }
+    }
+}
+
+for (let i = 0; i < NOTE_NUM; i = i + 1) {
+    spawn_note();
+}
+//==============================
+// 绘制地图
+//==============================
+
+let player = null;
+
+for (let i = 0; i < ROWS; i = i + 1) {
+
+    for (let j = 0; j < COLS; j = j + 1) {
+
+        const x = j * TILE + TILE / 2;
+        const y = i * TILE + TILE / 2;
+
+        // 地板
+        update_color(
+            update_position(
+                create_rectangle(TILE, TILE),
+                [x, y]
+            ),
+            [220,220,220,255]
+        );
+
+        if (map[i][j] === 1) {
+
+            update_color(
+                update_position(
+                    create_rectangle(TILE, TILE),
+                    [x, y]
+                ),
+                [70,70,70,255]
+            );
+
+        } else if (map[i][j] === 2) {
+
+            player = update_color(
+              update_position(
+                 create_rectangle(TILE * 0.5, TILE * 0.5),
+                 [x, y]
+              ),
+              [0,255,0,255]
+            );
+
+         update_to_top(player);
+
+        
+
+        } else if (map[i][j] === 3) {
+
+            update_color(
+                update_position(
+                    create_circle(TILE * 0.2),
+                    [x, y]
+                ),
+                [255,255,0,255]
+            );
+
+        } else if (map[i][j] === 4) {
+
+            update_color(
+                update_position(
+                    create_rectangle(TILE * 0.7, TILE * 0.7),
+                    [x, y]
+                ),
+                [0,0,255,255]
+            );
+        }
+    }
+}
+// ====================
+// 游戏循环
+// ====================
+function can_move(pos) {
+
+    const left = math_floor((pos[0] - HALF) / TILE);
+    const right = math_floor((pos[0] + HALF) / TILE);
+    const top = math_floor((pos[1] - HALF) / TILE);
+    const bottom = math_floor((pos[1] + HALF) / TILE);
+
+
+    if (left < 0 ||
+        right >= COLS ||
+        top < 0 ||
+        bottom >= ROWS) {
+
+        return false;
+    }
+
+
+    return map[top][left] !== 1 &&
+           map[top][right] !== 1 &&
+           map[bottom][left] !== 1 &&
+           map[bottom][right] !== 1;
+}
+update_loop(game_state => {
+
+    const new_position = query_position(player);
+
+    if (input_key_down("w")) {
+        add_vectors(new_position, [0, -movement_dist]);
+    }
+
+    if (input_key_down("a")) {
+        add_vectors(new_position, [-movement_dist, 0]);
+    }
+
+    if (input_key_down("s")) {
+        add_vectors(new_position, [0, movement_dist]);
+    }
+
+    if (input_key_down("d")) {
+        add_vectors(new_position, [movement_dist, 0]);
+    }
+
+    if (can_move(new_position)) {
+
+    update_position(player,new_position);
+
+    player_row = math_floor(new_position[1] / TILE);
+    player_col = math_floor(new_position[0] / TILE);
+}
+
+    // 保证玩家始终显示在最上层
+    update_to_top(player);
+
+});
+
+// ====================
+// 启动游戏
+// ====================
+
+build_game();
