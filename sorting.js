@@ -27,10 +27,16 @@ const FRAGMENT_COUNT = 5;
 const TIMER_DURATION_MS = 5 * 60 * 1000;
 const BUTTON_WIDTH = 120;
 const BUTTON_HEIGHT = 42;
+const PREVIEW_BUTTON_WIDTH = 56;
+const PREVIEW_BUTTON_HEIGHT = 26;
+const PREVIEW_BUTTON_Y_OFFSET = FRAGMENT_HEIGHT / 2
+  + PREVIEW_BUTTON_HEIGHT / 2 + 6;
 const LABEL_INDEX = 0;
 const SLOT_INDEX = 1;
 const RECTANGLE_INDEX = 2;
 const LABEL_TEXT_INDEX = 3;
+const PREVIEW_BUTTON_INDEX = 4;
+const PREVIEW_BUTTON_TEXT_INDEX = 5;
 
 // Colours use the documented [red, green, blue, alpha] format.
 const FRAGMENT_COLOURS = [
@@ -44,35 +50,11 @@ const TITLE_TEXT = [255, 255, 255, 255];
 const NORMAL_TEXT = [220, 220, 220, 255];
 const LIGHT_TEXT = [255, 255, 255, 255];
 const BUTTON_COLOUR = [52, 73, 94, 255];
+const PREVIEW_BUTTON_COLOUR = [41, 128, 185, 255];
 const DISABLED_BUTTON_COLOUR = [140, 140, 140, 255];
 
 const fragment_labels = ["A", "B", "C", "D", "E"];
 const target_order = ["A", "B", "C", "D", "E"];
-// Replace each no-op with the matching Sound System playback function during
-// integration. Keeping this map local prevents the sorting logic from knowing
-// about audio implementation details.
-const fragment_audio_players = {
-  A: function play_fragment_a_audio() {
-    // TODO: Connect fragment A to the Sound System after integration.
-    return undefined;
-  },
-  B: function play_fragment_b_audio() {
-    // TODO: Connect fragment B to the Sound System after integration.
-    return undefined;
-  },
-  C: function play_fragment_c_audio() {
-    // TODO: Connect fragment C to the Sound System after integration.
-    return undefined;
-  },
-  D: function play_fragment_d_audio() {
-    // TODO: Connect fragment D to the Sound System after integration.
-    return undefined;
-  },
-  E: function play_fragment_e_audio() {
-    // TODO: Connect fragment E to the Sound System after integration.
-    return undefined;
-  }
-};
 
 // This fixed starting layout makes the player solve the puzzle every time.
 // Each entry gives the slot occupied by the matching label above.
@@ -82,8 +64,6 @@ const fragments = [];
 const current_order = ["", "", "", "", ""];
 
 let dragged_fragment = undefined;
-let drag_start_pointer_position = undefined;
-let dragged_fragment_has_moved = false;
 let mouse_was_down = false;
 let puzzle_is_active = true;
 let timer_has_started = false;
@@ -103,7 +83,7 @@ const instruction_text = update_position(
   create_text("Drag one fragment onto another to swap them."),
   [CANVAS_WIDTH / 2, 115]
 );
-const status_text = update_position(create_text(""), [CANVAS_WIDTH / 2, 282]);
+const status_text = update_position(create_text(""), [CANVAS_WIDTH / 2, 297]);
 
 update_color(title_text, TITLE_TEXT);
 update_color(timer_text, NORMAL_TEXT);
@@ -125,7 +105,7 @@ function create_slot_positions() {
 
 function create_fragments() {
   for (let index = 0; index < FRAGMENT_COUNT; index = index + 1) {
-    // A fragment stores its label, slot, rectangle, and centred label text.
+    // A fragment owns its rectangle, label, and non-draggable preview control.
     const fragment = [
       fragment_labels[index],
       initial_slot_indexes[index],
@@ -133,10 +113,16 @@ function create_fragments() {
         create_rectangle(FRAGMENT_WIDTH, FRAGMENT_HEIGHT),
         FRAGMENT_COLOURS[index]
       ),
-      update_color(create_text(fragment_labels[index]), LIGHT_TEXT)
+      update_color(create_text(fragment_labels[index]), LIGHT_TEXT),
+      update_color(
+        create_rectangle(PREVIEW_BUTTON_WIDTH, PREVIEW_BUTTON_HEIGHT),
+        PREVIEW_BUTTON_COLOUR
+      ),
+      update_color(create_text("Play"), LIGHT_TEXT)
     ];
 
     update_scale(fragment[LABEL_TEXT_INDEX], [1.5, 1.5]);
+    update_scale(fragment[PREVIEW_BUTTON_TEXT_INDEX], [0.8, 0.8]);
     fragments[index] = fragment;
     move_fragment_to_slot(fragment);
   }
@@ -144,10 +130,27 @@ function create_fragments() {
   update_current_order();
 }
 
+function move_fragment_to_position(fragment, fragment_position) {
+  const preview_button_position = [
+    fragment_position[0],
+    fragment_position[1] + PREVIEW_BUTTON_Y_OFFSET
+  ];
+
+  update_position(fragment[RECTANGLE_INDEX], fragment_position);
+  update_position(fragment[LABEL_TEXT_INDEX], fragment_position);
+  update_position(fragment[PREVIEW_BUTTON_INDEX], preview_button_position);
+  update_position(fragment[PREVIEW_BUTTON_TEXT_INDEX], preview_button_position);
+}
+
 function move_fragment_to_slot(fragment) {
-  const slot_position = slot_positions[fragment[SLOT_INDEX]];
-  update_position(fragment[RECTANGLE_INDEX], slot_position);
-  update_position(fragment[LABEL_TEXT_INDEX], slot_position);
+  move_fragment_to_position(fragment, slot_positions[fragment[SLOT_INDEX]]);
+}
+
+function move_fragment_to_front(fragment) {
+  update_to_top(fragment[RECTANGLE_INDEX]);
+  update_to_top(fragment[LABEL_TEXT_INDEX]);
+  update_to_top(fragment[PREVIEW_BUTTON_INDEX]);
+  update_to_top(fragment[PREVIEW_BUTTON_TEXT_INDEX]);
 }
 
 function snap_fragments() {
@@ -169,14 +172,21 @@ function update_current_order() {
   }
 }
 
-// Sorting-side audio seam. This is the only call site used by interaction code.
-function play_fragment_audio(fragment) {
-  const playback_function = fragment_audio_players[fragment[LABEL_INDEX]];
-
-  if (playback_function !== undefined) {
-    playback_function();
+function find_previewed_fragment() {
+  for (let index = 0; index < FRAGMENT_COUNT; index = index + 1) {
+    const fragment = fragments[index];
+    if (pointer_over_gameobject(fragment[PREVIEW_BUTTON_INDEX]) ||
+        pointer_over_gameobject(fragment[PREVIEW_BUTTON_TEXT_INDEX])) {
+      return fragment;
+    }
   }
 
+  return undefined;
+}
+
+function play_fragment_audio(fragment) {
+  // TODO: Delegate this fragment to the Sound System when it is integrated.
+  // The Sorting System intentionally owns no audio implementation details.
   return undefined;
 }
 
@@ -186,10 +196,7 @@ function start_drag_if_possible() {
     if (pointer_over_gameobject(fragment[RECTANGLE_INDEX]) ||
         pointer_over_gameobject(fragment[LABEL_TEXT_INDEX])) {
       dragged_fragment = fragment;
-      drag_start_pointer_position = query_pointer_position();
-      dragged_fragment_has_moved = false;
-      update_to_top(fragment[RECTANGLE_INDEX]);
-      update_to_top(fragment[LABEL_TEXT_INDEX]);
+      move_fragment_to_front(fragment);
       return undefined;
     }
   }
@@ -197,23 +204,10 @@ function start_drag_if_possible() {
   return undefined;
 }
 
-function pointer_has_moved_from_drag_start(pointer_position) {
-  return pointer_position[0] !== drag_start_pointer_position[0]
-    || pointer_position[1] !== drag_start_pointer_position[1];
-}
-
 function drag_fragment() {
   const pointer_position = query_pointer_position();
-
-  if (!dragged_fragment_has_moved &&
-      pointer_has_moved_from_drag_start(pointer_position)) {
-    dragged_fragment_has_moved = true;
-  }
-
-  update_position(dragged_fragment[RECTANGLE_INDEX], pointer_position);
-  update_position(dragged_fragment[LABEL_TEXT_INDEX], pointer_position);
-  update_to_top(dragged_fragment[RECTANGLE_INDEX]);
-  update_to_top(dragged_fragment[LABEL_TEXT_INDEX]);
+  move_fragment_to_position(dragged_fragment, pointer_position);
+  move_fragment_to_front(dragged_fragment);
 }
 
 function find_overlapped_fragment() {
@@ -242,12 +236,6 @@ function swap_fragments(first_fragment, second_fragment) {
 function release_drag() {
   const overlapped_fragment = find_overlapped_fragment();
 
-  // Playback happens on release only when the pointer remained a click, so a
-  // held or moving drag can never restart its fragment audio every frame.
-  if (!dragged_fragment_has_moved) {
-    play_fragment_audio(dragged_fragment);
-  }
-
   if (overlapped_fragment === undefined) {
     move_fragment_to_slot(dragged_fragment);
   } else {
@@ -255,8 +243,6 @@ function release_drag() {
   }
 
   dragged_fragment = undefined;
-  drag_start_pointer_position = undefined;
-  dragged_fragment_has_moved = false;
 }
 
 function start_timer() {
@@ -333,8 +319,6 @@ function end_game() {
 
   puzzle_is_active = false;
   dragged_fragment = undefined;
-  drag_start_pointer_position = undefined;
-  dragged_fragment_has_moved = false;
   snap_fragments();
   update_color(submit_button, DISABLED_BUTTON_COLOUR);
   update_color(submit_button_text, [220, 220, 220, 255]);
@@ -362,12 +346,18 @@ function update() {
     update_timer();
   }
 
-  if (puzzle_is_active && mouse_pressed_this_frame) {
-    if (pointer_over_gameobject(submit_button) ||
-    pointer_over_gameobject(submit_button_text)) {
-      handle_submit();
-    } else {
-      start_drag_if_possible();
+  if (mouse_pressed_this_frame) {
+    const previewed_fragment = find_previewed_fragment();
+    if (previewed_fragment !== undefined) {
+      // Preview clicks never change slots or begin a drag.
+      play_fragment_audio(previewed_fragment);
+    } else if (puzzle_is_active) {
+      if (pointer_over_gameobject(submit_button) ||
+          pointer_over_gameobject(submit_button_text)) {
+        handle_submit();
+      } else {
+        start_drag_if_possible();
+      }
     }
   }
 
