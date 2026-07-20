@@ -33,6 +33,12 @@ update_position(
     [300,550]
 );
 
+const pickup_text =
+update_position(
+    create_text(""),
+    [300,520]
+);
+
 function update_inventory() {
 
     update_text(
@@ -204,6 +210,48 @@ function pickup_items(x, y) {
 
 }
 
+function update_pickup_text(x, y) {
+
+    let show = false;
+
+    for (let i = 0; i < array_length(world_items); i = i + 1) {
+
+        if (world_items[i] !== undefined) {
+
+            const piece_pos =
+                query_position(world_items[i][1]);
+
+            const dx = x - piece_pos[0];
+            const dy = y - piece_pos[1];
+
+            if (dx * dx + dy * dy < 35 * 35) {
+
+                show = true;
+
+            }
+
+        }
+
+    }
+
+    if (show) {
+
+        update_text(
+            pickup_text,
+            "Press E to Pick Up"
+        );
+
+    } else {
+
+        update_text(
+            pickup_text,
+            ""
+        );
+
+    }
+
+}
+
 function drop_item(x, y) {
 
     if (input_key_down("q")) {
@@ -335,7 +383,9 @@ update_loop(game_state => {
 const x = player_pos[0];
 const y = player_pos[1];
     
-    select_slot();
+select_slot();
+
+update_pickup_text(x, y);
 
 pickup_items(x, y);
 
