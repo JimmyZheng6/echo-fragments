@@ -203,12 +203,12 @@ function spawn_note(){
     while(true){
 
         const r =
-        1+math_floor(
+        1 + math_floor(
             math_random()*(ROWS-3)
         );
 
         const c =
-        1+math_floor(
+        1 + math_floor(
             math_random()*(COLS-3)
         );
 
@@ -217,17 +217,30 @@ function spawn_note(){
 
             map[r][c]=3;
 
-            notes[array_length(notes)]
-            =[r,c];
+            notes[array_length(notes)] = [r,c];
+
+
+            const note =
+            update_position(
+                update_scale(
+                    create_text("♪"),
+                    [2,2]
+                ),
+                [
+                    c*TILE+TILE/2,
+                    r*TILE+TILE/2
+                ]
+            );
+
+
+            note_objects[array_length(note_objects)]
+            =note;
+
 
             break;
-
         }
-
     }
-
 }
-
 
 spawn_note();
 spawn_note();
@@ -262,13 +275,8 @@ for(let i=0;i<ROWS;i=i+1){
                     create_sprite("avatars/beat/beat.happy.png"),[0.05,0.05]),[x,y]);
 
         }
-
-
+        
         if(map[i][j]===3){
-
-             const note = update_position(
-                    update_scale(create_text("♪"),[2,2]),[x,y]);
-                    note_objects[array_length(note_objects)]=note;
 
         }
 
@@ -295,13 +303,13 @@ let selected_slot=0;
 const inventory_text=
 update_position(
     create_text(""),
-    [300,650]
+    [300,580]
 );
 
 const pickup_text=
 update_position(
     create_text(""),
-    [300,620]
+    [300,600]
 );
 
 
@@ -343,7 +351,6 @@ function add_item(item){
 
     return added;
 }
-
 
 function remove_item(slot){
 
@@ -466,16 +473,35 @@ function pickup_notes(x,y){
             const dx=x-nx;
             const dy=y-ny;
 
-            if(dx*dx+dy*dy<35*35 &&
-               input_key_down("e")){
 
-                if(add_item("Music Note")){
+            if(dx*dx+dy*dy<50*50){
 
-                    map[r][c]=0;
+                if(input_key_down("e")){
 
-                    notes[i]=[-1,-1];
+                    const success=
+                    add_item("Music Note");
 
-                    update_position(note_objects[i],[-1000,-1000]);
+
+                    if(success){
+                        map[r][c]=0;
+
+                        notes[i][0]=-1;
+                        notes[i][1]=-1;
+
+
+                        if(note_objects[i]!==undefined){
+
+                            update_position(
+                                note_objects[i],
+                                [-1000,-1000]
+                            );
+
+                        }
+
+
+                        update_inventory();
+
+                    }
 
                 }
 
@@ -527,11 +553,12 @@ function can_move(pos){
     math_floor((pos[1]-HALF)/TILE);
 
     const bottom=math_floor((pos[1]+HALF)/TILE);
-    if(leftright>=COLStop<0||>=ROWS){
-        
-        return false;
+    if(left<0||right<0||top<0||bottom<0||left>=COLS||right>=COLS||top>=ROWS||
+   bottom>=ROWS){
 
-    }
+    return false;
+
+  }
 
 
     return map[top][left]!==1&&
@@ -601,6 +628,13 @@ update_loop(game_state=>{
     drop_item(pos[0],pos[1]);
 
     update_to_top(player);
+    for(let i=0;i<array_length(note_objects);i=i+1){
+
+        if(notes[i][0]!==-1){
+
+            update_to_top(note_objects[i]);
+        }
+    }
 
 
 });
