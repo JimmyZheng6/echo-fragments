@@ -1,0 +1,162 @@
+import {
+    create_sprite,
+    create_rectangle,
+    update_color,
+    update_position,
+    update_scale,
+    query_position,
+    input_key_down,
+    update_loop,
+    build_game
+} from "arcade_2d";
+
+//======================
+// Player
+//======================
+
+const player =
+update_position(
+    update_scale(
+        create_sprite("avatars/beat/beat.happy.png"),
+        [0.3,0.3]
+    ),
+    [300,300]
+);
+
+//======================
+// Speed
+//======================
+
+const WALK_SPEED = 3;
+const RUN_SPEED = 7;
+
+let speed = WALK_SPEED;
+
+//======================
+// Stamina
+//======================
+
+const MAX_STAMINA = 100;
+
+let stamina = MAX_STAMINA;
+
+//======================
+// Stamina Bar
+//======================
+
+// 背景
+
+const stamina_back =
+update_position(
+    update_color(
+        create_rectangle(42,6),
+        [30,30,30,255]
+    ),
+    [300,250]
+);
+
+// 前景
+
+const stamina_front =
+update_position(
+    update_color(
+        create_rectangle(40,4),
+        [0,255,80,255]
+    ),
+    [300,250]
+);
+
+//======================
+// Player
+//======================
+
+function move_player(){
+
+    const p = query_position(player);
+
+    let x = p[0];
+    let y = p[1];
+
+    if(input_key_down("f") && stamina > 0){
+
+        speed = RUN_SPEED;
+
+        stamina = stamina - 0.5;
+
+    }else{
+
+        speed = WALK_SPEED;
+
+        if(stamina < MAX_STAMINA){
+
+            stamina = stamina + 0.25;
+
+        }
+
+    }
+
+    if(input_key_down("w")){
+        y = y - speed;
+    }
+
+    if(input_key_down("s")){
+        y = y + speed;
+    }
+
+    if(input_key_down("a")){
+        x = x - speed;
+    }
+
+    if(input_key_down("d")){
+        x = x + speed;
+    }
+
+    update_position(player,[x,y]);
+
+    return [x,y];
+
+}
+
+//======================
+// Stamina Bar
+//======================
+
+function update_bar(x,y){
+
+    // 放到头顶
+
+    update_position(
+        stamina_back,
+        [x,y-55]
+    );
+
+    update_position(
+        stamina_front,
+        [x,y-55]
+    );
+
+    // 平滑长度
+
+    update_scale(
+        stamina_front,
+        [stamina / MAX_STAMINA,1]
+    );
+
+}
+
+//======================
+// Loop
+//======================
+
+update_loop(game_state=>{
+
+    const p = move_player();
+
+    update_bar(
+        p[0],
+        p[1]
+    );
+
+});
+
+build_game();
