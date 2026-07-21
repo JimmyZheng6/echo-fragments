@@ -65,7 +65,5 @@ const left_lengths = list(
 );
 
 
-
-
-
+const Castle_in_the_Sky = [right_notes, right_lengths, left_notes, left_lengths];
 
