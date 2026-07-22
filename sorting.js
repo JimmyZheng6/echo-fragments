@@ -23,15 +23,15 @@ import {
 // Canvas and layout constants.
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 650;
-const FRAGMENT_RADIUS = 54;
-const FRAGMENT_GAP = 40;
+const FRAGMENT_RADIUS = 38;
+const FRAGMENT_GAP = 22;
 const FRAGMENT_Y = 275;
-const FRAGMENT_COUNT = 5;
+const FRAGMENT_COUNT = 8;
 const TIMER_DURATION_MS = 5 * 60 * 1000;
 const BUTTON_WIDTH = 160;
 const BUTTON_HEIGHT = 48;
-const PREVIEW_BUTTON_WIDTH = 80;
-const PREVIEW_BUTTON_HEIGHT = 32;
+const PREVIEW_BUTTON_WIDTH = 64;
+const PREVIEW_BUTTON_HEIGHT = 30;
 const PREVIEW_BUTTON_Y_OFFSET = FRAGMENT_RADIUS
   + PREVIEW_BUTTON_HEIGHT / 2 + 12;
 const EQUALIZER_BAR_COUNT = 15;
@@ -65,7 +65,10 @@ const FRAGMENT_COLOURS = [
   [243, 156, 18, 255],
   [241, 196, 15, 255],
   [46, 204, 113, 255],
-  [52, 152, 219, 255]
+  [52, 152, 219, 255],
+  [63, 81, 181, 255],
+  [155, 89, 182, 255],
+  [233, 30, 99, 255]
 ];
 const TITLE_TEXT = [255, 255, 255, 255];
 const NORMAL_TEXT = [220, 220, 220, 255];
@@ -79,7 +82,7 @@ const PREVIEW_BUTTON_COLOUR = [41, 128, 185, 255];
 const STOP_BUTTON_COLOUR = [192, 57, 43, 255];
 const DISABLED_BUTTON_COLOUR = [140, 140, 140, 255];
 
-const fragment_labels = ["A", "B", "C", "D", "E"];
+const fragment_labels = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 // Trusted configuration owned by this level, not by the previous level.
 const TARGET_SONG_ID = "song_01";
@@ -88,7 +91,10 @@ const TARGET_FRAGMENT_IDS = [
   "song_01_part_2",
   "song_01_part_3",
   "song_01_part_4",
-  "song_01_part_5"
+  "song_01_part_5",
+  "song_01_part_6",
+  "song_01_part_7",
+  "song_01_part_8"
 ];
 
 // Result values returned to the level controller.
@@ -108,12 +114,15 @@ const DEMO_FRAGMENT_LIST = [
   ["song_01_part_2", "song_01", SAMPLE_AUDIO_URL],
   ["song_01_part_3", "song_01", SAMPLE_AUDIO_URL],
   ["song_01_part_4", "song_01", SAMPLE_AUDIO_URL],
-  ["song_01_part_5", "song_01", SAMPLE_AUDIO_URL]
+  ["song_01_part_5", "song_01", SAMPLE_AUDIO_URL],
+  ["song_01_part_6", "song_01", SAMPLE_AUDIO_URL],
+  ["song_01_part_7", "song_01", SAMPLE_AUDIO_URL],
+  ["song_01_part_8", "song_01", SAMPLE_AUDIO_URL]
 ];
 
 // This fixed starting layout makes the player solve the puzzle every time.
 // Each entry gives the slot occupied by the matching label above.
-const initial_slot_indexes = [2, 0, 4, 1, 3];
+const initial_slot_indexes = [5, 0, 7, 2, 6, 1, 4, 3];
 const slot_positions = [];
 const fragments = [];
 const equalizer_bars = [];
@@ -146,7 +155,7 @@ update_color(
   [54, 82, 149, 90]
 );
 update_color(
-  update_position(create_rectangle(820, 260), [CANVAS_WIDTH / 2, 290]),
+  update_position(create_rectangle(860, 260), [CANVAS_WIDTH / 2, 290]),
   PANEL_COLOUR
 );
 update_color(
@@ -204,7 +213,7 @@ function create_fragments() {
       FRAGMENT_COLOURS[index]
     );
     const disc_center = update_color(
-      create_circle(18),
+      create_circle(13),
       DISC_CENTER_COLOUR
     );
     const label_text = update_color(
@@ -735,14 +744,9 @@ function start_melody_sorting_level(fragment_list, on_result) {
     notify_result(RESULT_INVALID_INPUT);
   }
 
-  update_loop(update);
-  build_game();
-
   return undefined;
 }
 
-// Stand-alone demo. In the complete multi-level game, replace this call with:
-// start_melody_sorting_level(selected_fragments, handle_sorting_result);
 // Stand-alone demo. In the complete multi-level game, replace only this call
 // with start_melody_sorting_level(selected_fragments, handle_sorting_result).
 start_melody_sorting_level(DEMO_FRAGMENT_LIST, undefined);
