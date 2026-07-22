@@ -1,11 +1,26 @@
 // Lists for easy version (No distracter)
-[1, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_A.mp3]
-[2, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_B.mp3]
-[3, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_C.mp3]
-[4, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_A.mp3]   // Repeat_A, Fixed
-[5, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_D.mp3]
-[6, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_E.mp3]
-[7, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_F.mp3]
-[8, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_G.mp3]
-[9, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_F.mp3]   // Repeat_F, Fixed
-[10, 1, https://github.com/JimmyZheng6/echo-fragments/blob/sound/music_mp3/correct_fragment_H.mp3]
+
+const ALL_FRAGMENT_DATA = [
+
+["song_01_part_1", "song_01", "https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_B.mp3"]
+["song_01_part_2", "song_01", "https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_C.mp3"]
+["song_01_part_3", "song_01", "https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_A.mp3"]
+["song_01_part_4", "song_01", "https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_D.mp3"]
+["song_01_part_5", "song_01", "https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_E.mp3"]
+["song_01_part_6", "song_01", "https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_F.mp3"]
+["song_01_part_7", "song_01", "https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_G.mp3"]
+["song_01_part_8", "song_01", "https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_H.mp3"]
+
+];
+
+
+
+// Repeat_A, Fixed on the 1st position
+
+"https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_A.mp3"
+
+
+
+// Repeat_F, Fixed on the 9th position
+
+"https://raw.githubusercontent.com/JimmyZheng6/echo-fragments/sound/music_mp3/correct_fragment_F.mp3"
