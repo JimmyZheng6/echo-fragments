@@ -30,6 +30,8 @@ const FRAGMENT_COUNT = 8;
 const TIMER_DURATION_MS = 5 * 60 * 1000;
 const BUTTON_WIDTH = 160;
 const BUTTON_HEIGHT = 48;
+const BACK_BUTTON_WIDTH = 120;
+const BACK_BUTTON_HEIGHT = 42;
 const PREVIEW_BUTTON_WIDTH = 64;
 const PREVIEW_BUTTON_HEIGHT = 30;
 const PREVIEW_BUTTON_Y_OFFSET = FRAGMENT_RADIUS
@@ -78,6 +80,7 @@ const PANEL_COLOUR = [21, 30, 58, 255];
 const ANIMATION_PANEL_COLOUR = [15, 23, 46, 255];
 const DISC_CENTER_COLOUR = [17, 24, 45, 255];
 const BUTTON_COLOUR = [52, 73, 94, 255];
+const BACK_BUTTON_COLOUR = [76, 86, 106, 255];
 const PREVIEW_BUTTON_COLOUR = [41, 128, 185, 255];
 const STOP_BUTTON_COLOUR = [192, 57, 43, 255];
 const DISABLED_BUTTON_COLOUR = [140, 140, 140, 255];
@@ -130,6 +133,7 @@ const floating_notes = [];
 
 let received_fragment_list = [];
 let result_callback = undefined;
+let back_callback = undefined;
 let dragged_fragment = undefined;
 let playing_fragment = undefined;
 let mouse_was_down = false;
@@ -139,6 +143,9 @@ let timer_started_at = 0;
 let time_remaining_ms = TIMER_DURATION_MS;
 let submit_button = undefined;
 let submit_button_text = undefined;
+let back_button = undefined;
+let back_button_text = undefined;
+let back_has_been_requested = false;
 
 set_dimensions([CANVAS_WIDTH, CANVAS_HEIGHT]);
 
@@ -506,6 +513,22 @@ function animate_ambient_background() {
   }
 }
 
+function create_back_button() {
+  back_button = update_color(
+    update_position(
+      create_rectangle(BACK_BUTTON_WIDTH, BACK_BUTTON_HEIGHT),
+      [82, 62]
+    ),
+    BACK_BUTTON_COLOUR
+  );
+  back_button_text = update_color(
+    update_position(create_text("Back"), [82, 62]),
+    LIGHT_TEXT
+  );
+
+  return undefined;
+}
+
 function create_submit_button() {
   submit_button = update_color(
     update_position(
@@ -630,6 +653,35 @@ function notify_result(result) {
   }
 }
 
+function pointer_is_over_back_button() {
+  return pointer_over_gameobject(back_button)
+    || pointer_over_gameobject(back_button_text);
+}
+
+function handle_back() {
+  if (back_has_been_requested) {
+    return undefined;
+  }
+
+  if (back_callback === undefined) {
+    show_status("Back navigation needs an on_back callback.");
+    return undefined;
+  }
+
+  back_has_been_requested = true;
+  puzzle_is_active = false;
+  dragged_fragment = undefined;
+  stop_fragment_audio();
+  update_color(submit_button, DISABLED_BUTTON_COLOUR);
+  update_color(submit_button_text, [220, 220, 220, 255]);
+  show_status("Returning to the collection level...");
+
+  // Return the same fragment data so the previous level can restore its state.
+  back_callback(received_fragment_list);
+
+  return undefined;
+}
+
 function finish_game(message, result) {
   if (!puzzle_is_active) {
     return undefined;
@@ -685,7 +737,9 @@ function update() {
     update_timer();
   }
 
-  if (puzzle_is_active && mouse_pressed_this_frame) {
+  if (mouse_pressed_this_frame && pointer_is_over_back_button()) {
+    handle_back();
+  } else if (puzzle_is_active && mouse_pressed_this_frame) {
     const previewed_fragment = find_previewed_fragment();
 
     if (previewed_fragment !== undefined) {
@@ -716,11 +770,12 @@ function update() {
   mouse_was_down = mouse_is_down;
 }
 
-// Public level interface. The previous level passes its selected fragment array
-// and an optional callback that receives one of the RESULT_* values above.
-function start_melody_sorting_level(fragment_list, on_result) {
+// Public level interface. The previous level passes its selected fragment array,
+// a result callback, and a callback that restores the previous interface.
+function start_melody_sorting_level(fragment_list, on_result, on_back) {
   received_fragment_list = fragment_list;
   result_callback = on_result;
+  back_callback = on_back;
 
   create_slot_positions();
 
@@ -735,6 +790,7 @@ function start_melody_sorting_level(fragment_list, on_result) {
   }
 
   create_submit_button();
+  create_back_button();
   create_ambient_animation();
 
   if (!input_is_valid) {
@@ -748,8 +804,12 @@ function start_melody_sorting_level(fragment_list, on_result) {
 }
 
 // Stand-alone demo. In the complete multi-level game, replace only this call
-// with start_melody_sorting_level(selected_fragments, handle_sorting_result).
-start_melody_sorting_level(DEMO_FRAGMENT_LIST, undefined);
+// with start_melody_sorting_level(
+//   selected_fragments,
+//   handle_sorting_result,
+//   return_to_collection_level
+// ).
+start_melody_sorting_level(DEMO_FRAGMENT_LIST, undefined, undefined);
 update_loop(update);
 
 // Source Academy requires build_game to be the final statement.
