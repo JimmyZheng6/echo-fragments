@@ -41,38 +41,92 @@ const DATA_AUDIO_URL_INDEX = 2;
 const FRAGMENT_COUNT = 8;
 const TARGET_SONG_ID = "song_01";
 const TARGET_FRAGMENT_IDS = [
-  "song_01_part_1",
-  "song_01_part_2",
-  "song_01_part_3",
-  "song_01_part_4",
-  "song_01_part_5",
-  "song_01_part_6",
-  "song_01_part_7",
-  "song_01_part_8"
+  "song_01_fragment_B",
+  "song_01_fragment_C",
+  "song_01_fragment_A",
+  "song_01_fragment_D",
+  "song_01_fragment_E",
+  "song_01_fragment_F",
+  "song_01_fragment_G",
+  "song_01_fragment_H"
 ];
+const TARGET_FRAGMENT_LABELS = ["B", "C", "A", "D", "E", "F", "G", "H"];
 
-const SAMPLE_AUDIO_URL =
-  "https://labs.phaser.io/assets/audio/tech/bass.mp3";
+const AUDIO_BASE_URL =
+  "https://raw.githubusercontent.com/JimmyZheng6/"
+  + "echo-fragments/sound/music_mp3/";
 
-// Eight target fragments and seven decoys from other songs.
-// Replace SAMPLE_AUDIO_URL with the real URL for each fragment.
+// Only these eight fragments enter collection and sorting.
+// Their correct relative order is B, C, A, D, E, F, G, H.
 const ALL_FRAGMENT_DATA = [
-  ["song_01_part_1", "song_01", SAMPLE_AUDIO_URL],
-  ["song_02_part_3", "song_02", SAMPLE_AUDIO_URL],
-  ["song_01_part_5", "song_01", SAMPLE_AUDIO_URL],
-  ["song_03_part_1", "song_03", SAMPLE_AUDIO_URL],
-  ["song_01_part_2", "song_01", SAMPLE_AUDIO_URL],
-  ["song_02_part_6", "song_02", SAMPLE_AUDIO_URL],
-  ["song_01_part_8", "song_01", SAMPLE_AUDIO_URL],
-  ["song_01_part_4", "song_01", SAMPLE_AUDIO_URL],
-  ["song_03_part_5", "song_03", SAMPLE_AUDIO_URL],
-  ["song_01_part_7", "song_01", SAMPLE_AUDIO_URL],
-  ["song_02_part_1", "song_02", SAMPLE_AUDIO_URL],
-  ["song_01_part_3", "song_01", SAMPLE_AUDIO_URL],
-  ["song_03_part_7", "song_03", SAMPLE_AUDIO_URL],
-  ["song_01_part_6", "song_01", SAMPLE_AUDIO_URL],
-  ["song_02_part_8", "song_02", SAMPLE_AUDIO_URL]
+  [
+    "song_01_fragment_B",
+    "song_01",
+    AUDIO_BASE_URL + "correct_fragment_B.mp3"
+  ],
+  [
+    "song_01_fragment_C",
+    "song_01",
+    AUDIO_BASE_URL + "correct_fragment_C.mp3"
+  ],
+  [
+    "song_01_fragment_A",
+    "song_01",
+    AUDIO_BASE_URL + "correct_fragment_A.mp3"
+  ],
+  [
+    "song_01_fragment_D",
+    "song_01",
+    AUDIO_BASE_URL + "correct_fragment_D.mp3"
+  ],
+  [
+    "song_01_fragment_E",
+    "song_01",
+    AUDIO_BASE_URL + "correct_fragment_E.mp3"
+  ],
+  [
+    "song_01_fragment_F",
+    "song_01",
+    AUDIO_BASE_URL + "correct_fragment_F.mp3"
+  ],
+  [
+    "song_01_fragment_G",
+    "song_01",
+    AUDIO_BASE_URL + "correct_fragment_G.mp3"
+  ],
+  [
+    "song_01_fragment_H",
+    "song_01",
+    AUDIO_BASE_URL + "correct_fragment_H.mp3"
+  ]
 ];
+
+// Fixed sequence item: [zero_based_position, display_label, fragment_data]
+// These two repeats are shown in sorting but can never be dragged.
+const FIXED_FRAGMENT_DATA = [
+  [
+    0,
+    "A",
+    [
+      "song_01_repeat_A",
+      "song_01",
+      AUDIO_BASE_URL + "correct_fragment_A.mp3"
+    ]
+  ],
+  [
+    8,
+    "F",
+    [
+      "song_01_repeat_F",
+      "song_01",
+      AUDIO_BASE_URL + "correct_fragment_F.mp3"
+    ]
+  ]
+];
+
+const FIXED_POSITION_INDEX = 0;
+const FIXED_LABEL_INDEX = 1;
+const FIXED_DATA_INDEX = 2;
 
 const FRAGMENT_COLOURS = [
   [231, 76, 60, 255],
@@ -88,6 +142,7 @@ const FRAGMENT_COLOURS = [
 let current_scene = SCENE_COLLECTION;
 let e_was_down = false;
 let q_was_down = false;
+let r_was_down = false;
 let mouse_was_down = false;
 
 set_dimensions([CANVAS_WIDTH, CANVAS_HEIGHT]);
@@ -181,6 +236,7 @@ let reachable_cells = [];
 const world_fragments = [];
 const inventory = ["", "", "", "", "", "", "", ""];
 const inventory_texts = [];
+const inventory_slot_backs = [];
 
 // world_fragments item:
 // [fragment_data, gameobject, row, column, active, colour, scale]
@@ -204,6 +260,8 @@ let stamina_back = undefined;
 let stamina_front = undefined;
 let collection_action_text = undefined;
 let collection_message_text = undefined;
+let collection_progress_text = undefined;
+let collection_playing_item = undefined;
 
 function initialise_map() {
   for (let row = 0; row < ROWS; row = row + 1) {
@@ -507,79 +565,186 @@ function create_player_and_status() {
   );
 }
 
-function create_collection_ui() {
+function create_collection_key_hint(key_text, action_text, y, key_width) {
   register_collection_object(
     update_color(
-      update_scale(create_text("ECHO"), [1.25, 1.25]),
+      create_rectangle(key_width + 4, 28),
+      [8, 11, 30, 255]
+    ),
+    [783, y + 2]
+  );
+  register_collection_object(
+    update_color(
+      create_rectangle(key_width, 24),
+      [72, 47, 118, 255]
+    ),
+    [783, y]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text(key_text), [0.68, 0.68]),
       [255, 255, 255, 255]
     ),
-    [800, 45]
+    [783, y]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text(action_text), [0.68, 0.68]),
+      [255, 255, 255, 255]
+    ),
+    [846, y]
+  );
+}
+
+function create_collection_ui() {
+  // Right-side control panel.
+  register_collection_object(
+    update_color(create_rectangle(138, 720), [18, 22, 52, 245]),
+    [825, 375]
+  );
+  register_collection_object(
+    update_color(create_rectangle(126, 4), [198, 74, 230, 255]),
+    [825, 22]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text("ECHO"), [1.6, 1.6]),
+      [255, 255, 255, 255]
+    ),
+    [825, 52]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text("FRAGMENT RUN"), [0.62, 0.62]),
+      [255, 255, 255, 255]
+    ),
+    [825, 82]
+  );
+
+  register_collection_object(
+    update_color(create_rectangle(116, 238), [25, 31, 70, 255]),
+    [825, 235]
+  );
+  register_collection_object(
+    update_color(create_rectangle(102, 2), [73, 84, 135, 255]),
+    [825, 135]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text("MISSION"), [0.7, 0.7]),
+      [255, 255, 255, 255]
+    ),
+    [825, 116]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text("♪"), [3.0, 3.0]),
+      [220, 78, 239, 255]
+    ),
+    [825, 218]
+  );
+  collection_progress_text = register_collection_object(
+    update_color(
+      update_scale(create_text("0 / 8"), [1.22, 1.22]),
+      [255, 255, 255, 255]
+    ),
+    [825, 305]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text("COLLECTED"), [0.58, 0.58]),
+      [255, 255, 255, 255]
+    ),
+    [825, 334]
+  );
+
+  register_collection_object(
+    update_color(
+      update_scale(create_text("CONTROLS"), [0.78, 0.78]),
+      [255, 255, 255, 255]
+    ),
+    [825, 410]
+  );
+  register_collection_object(
+    update_color(create_rectangle(112, 2), [75, 84, 130, 255]),
+    [825, 430]
+  );
+
+  create_collection_key_hint("WASD", "MOVE", 458, 44);
+  create_collection_key_hint("F", "SPRINT", 496, 28);
+  create_collection_key_hint("R", "PREVIEW", 534, 28);
+  create_collection_key_hint("E", "COLLECT", 572, 28);
+  create_collection_key_hint("Q", "DROP", 610, 28);
+
+  register_collection_object(
+    update_color(create_rectangle(126, 84), [29, 35, 72, 255]),
+    [825, 680]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text("STATUS"), [0.74, 0.74]),
+      [255, 255, 255, 255]
+    ),
+    [825, 650]
+  );
+  register_collection_object(
+    update_color(create_rectangle(108, 1), [75, 84, 130, 255]),
+    [825, 693]
+  );
+
+  // Bottom inventory panel.
+  register_collection_object(
+    update_color(create_rectangle(742, 46), [18, 22, 52, 250]),
+    [375, 775]
+  );
+  register_collection_object(
+    update_color(create_rectangle(730, 3), [77, 190, 225, 255]),
+    [375, 753]
+  );
+  register_collection_object(
+    update_color(
+      update_scale(create_text("BAG"), [0.64, 0.64]),
+      [255, 255, 255, 255]
+    ),
+    [45, 775]
   );
 
   const inventory_positions = [
-    [250, 760],
-    [350, 760],
-    [450, 760],
-    [550, 760],
-    [250, 780],
-    [350, 780],
-    [450, 780],
-    [550, 780]
+    [115, 775],
+    [200, 775],
+    [285, 775],
+    [370, 775],
+    [455, 775],
+    [540, 775],
+    [625, 775],
+    [710, 775]
   ];
 
   for (let index = 0; index < FRAGMENT_COUNT; index = index + 1) {
+    inventory_slot_backs[index] = register_collection_object(
+      update_color(create_rectangle(74, 32), [36, 43, 78, 255]),
+      inventory_positions[index]
+    );
     inventory_texts[index] = register_collection_object(
-      update_scale(create_text(""), [0.78, 0.78]),
+      update_scale(create_text(""), [0.66, 0.66]),
       inventory_positions[index]
     );
   }
 
-  register_collection_object(
-    update_color(
-      update_scale(
-        create_text("WASD Move"),
-        [0.72, 0.72]
-      ),
-      [210, 210, 225, 255]
-    ),
-    [825, 500]
-  );
-
-  register_collection_object(
-    update_color(
-      update_scale(create_text("F Sprint"), [0.72, 0.72]),
-      [210, 210, 225, 255]
-    ),
-    [825, 530]
-  );
-
-  register_collection_object(
-    update_color(
-      update_scale(create_text("E Pick Up"), [0.72, 0.72]),
-      [210, 210, 225, 255]
-    ),
-    [825, 560]
-  );
-
-  register_collection_object(
-    update_color(
-      update_scale(create_text("1-8 Select / Q Drop"), [0.65, 0.65]),
-      [210, 210, 225, 255]
-    ),
-    [825, 590]
-  );
-
   collection_action_text = register_collection_object(
-    update_color(create_text(""), [255, 255, 255, 255]),
-    [375, 792]
+    update_color(
+      update_scale(create_text(""), [0.66, 0.66]),
+      [255, 255, 255, 255]
+    ),
+    [825, 676]
   );
 
   collection_message_text = register_collection_object(
     update_color(
-      update_scale(create_text("Collect 8 fragments."), [0.68, 0.68]),
-      [205, 190, 255, 255]
+      update_scale(create_text("Find 8 notes."), [0.62, 0.62]),
+      [255, 255, 255, 255]
     ),
-    [825, 650]
+    [825, 708]
   );
 }
 
@@ -597,25 +762,39 @@ function colour_for_fragment(fragment_data) {
 }
 
 function update_inventory_ui() {
+  let collected_count = 0;
+
   for (let index = 0; index < FRAGMENT_COUNT; index = index + 1) {
     const prefix = selected_slot === index ? ">" : " ";
+
+    update_color(
+      inventory_slot_backs[index],
+      selected_slot === index
+        ? [92, 55, 142, 255]
+        : [36, 43, 78, 255]
+    );
 
     if (inventory[index] === "") {
       update_text(
         inventory_texts[index],
         prefix + "[" + stringify(index + 1) + "] --"
       );
-      update_color(inventory_texts[index], [180, 180, 195, 255]);
+      update_color(inventory_texts[index], [255, 255, 255, 255]);
     } else {
+      collected_count = collected_count + 1;
       update_text(
         inventory_texts[index],
         prefix + "[" + stringify(index + 1) + "] ♪"
       );
-      update_color(
-        inventory_texts[index],
-        colour_for_fragment(inventory[index])
-      );
+      update_color(inventory_texts[index], [255, 255, 255, 255]);
     }
+  }
+
+  if (collection_progress_text !== undefined) {
+    update_text(
+      collection_progress_text,
+      stringify(collected_count) + " / " + stringify(FRAGMENT_COUNT)
+    );
   }
 }
 
@@ -789,15 +968,54 @@ function player_is_near_goal(position) {
   return delta_x * delta_x + delta_y * delta_y < 55 * 55;
 }
 
+function stop_collection_audio() {
+  if (collection_playing_item !== undefined) {
+    const data = collection_playing_item[WORLD_DATA_INDEX];
+    const audio = audio_for_fragment_data(data);
+    if (audio !== undefined) {
+      stop_audio(audio);
+    }
+    collection_playing_item = undefined;
+  }
+}
+
+function toggle_collection_audio(item) {
+  if (collection_playing_item === item) {
+    stop_collection_audio();
+    update_text(collection_message_text, "Stopped.");
+    return undefined;
+  }
+
+  stop_collection_audio();
+  const data = item[WORLD_DATA_INDEX];
+  const audio = audio_for_fragment_data(data);
+
+  if (audio === undefined) {
+    update_text(collection_message_text, "No audio.");
+    return undefined;
+  }
+
+  play_audio(audio);
+  collection_playing_item = item;
+  update_text(
+    collection_message_text,
+    "Playing " + label_for_fragment_id(data[DATA_ID_INDEX]) + "."
+  );
+  return undefined;
+}
+
 function pick_up_fragment(item) {
   if (add_to_inventory(item[WORLD_DATA_INDEX])) {
+    if (collection_playing_item === item) {
+      stop_collection_audio();
+    }
     item[WORLD_ACTIVE_INDEX] = false;
     update_position(item[WORLD_OBJECT_INDEX], [-2000, -2000]);
-    update_text(collection_message_text, "Fragment collected.");
+    update_text(collection_message_text, "Collected.");
     return true;
   }
 
-  update_text(collection_message_text, "Inventory full. Press Q.");
+  update_text(collection_message_text, "Full! Press Q.");
   return false;
 }
 
@@ -825,7 +1043,7 @@ function drop_selected_fragment(position) {
         [position[0] + 28, position[1]]
       );
       remove_from_inventory(selected_slot);
-      update_text(collection_message_text, "Fragment dropped.");
+      update_text(collection_message_text, "Dropped.");
       return undefined;
     }
   }
@@ -859,36 +1077,43 @@ function highlight_world_fragments(position) {
   }
 }
 
-function update_collection_prompt(position) {
-  const nearby_item = find_nearby_world_fragment(position);
-
+function update_collection_prompt(position, nearby_item) {
   if (nearby_item !== undefined) {
-    update_text(collection_action_text, "Press E to collect this fragment.");
+    update_text(collection_action_text, "R PLAY  E TAKE");
   } else if (player_is_near_goal(position)) {
     if (inventory_is_full()) {
-      update_text(collection_action_text, "Press E to arrange your 8 fragments.");
+      update_text(collection_action_text, "E: SORT");
     } else {
-      update_text(collection_action_text, "You need 8 fragments before sorting.");
+      update_text(collection_action_text, "NEED 8 NOTES");
     }
   } else {
     update_text(collection_action_text, "");
   }
 }
 
-function update_collection_scene(e_pressed, q_pressed) {
+function update_collection_scene(e_pressed, q_pressed, r_pressed) {
   const position = move_player();
+  const nearby_item = find_nearby_world_fragment(position);
   select_inventory_slot();
   update_player_status(position);
   highlight_world_fragments(position);
-  update_collection_prompt(position);
+  update_collection_prompt(position, nearby_item);
+
+  if (collection_playing_item !== undefined
+      && collection_playing_item !== nearby_item) {
+    stop_collection_audio();
+    update_text(collection_message_text, "Stopped.");
+  }
+
+  if (r_pressed && nearby_item !== undefined) {
+    toggle_collection_audio(nearby_item);
+  }
 
   if (q_pressed) {
     drop_selected_fragment(position);
   }
 
   if (e_pressed) {
-    const nearby_item = find_nearby_world_fragment(position);
-
     if (nearby_item !== undefined) {
       pick_up_fragment(nearby_item);
     } else if (player_is_near_goal(position) && inventory_is_full()) {
@@ -919,20 +1144,22 @@ function initialise_collection_scene() {
 // Sorting scene
 // ============================================================
 
-const SORT_FRAGMENT_RADIUS = 38;
-const SORT_FRAGMENT_GAP = 22;
+const SORT_FRAGMENT_RADIUS = 31;
+const SORT_FRAGMENT_GAP = 15;
 const SORT_FRAGMENT_Y = 285;
-const SORT_PREVIEW_WIDTH = 64;
-const SORT_PREVIEW_HEIGHT = 30;
+const SORT_PREVIEW_WIDTH = 58;
+const SORT_PREVIEW_HEIGHT = 28;
 const SORT_PREVIEW_OFFSET = SORT_FRAGMENT_RADIUS
   + SORT_PREVIEW_HEIGHT / 2 + 12;
 const SORT_TIMER_DURATION_MS = 5 * 60 * 1000;
 const SORT_LABELS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 const SORT_INITIAL_SLOTS = [5, 0, 7, 2, 6, 1, 4, 3];
+const SORT_TOTAL_SEQUENCE_COUNT = 10;
+const SORTABLE_SEQUENCE_POSITIONS = [1, 2, 3, 4, 5, 6, 7, 9];
 
 // sorting fragment item:
 // [label, slot, shape, label_text, button, button_text,
-//  audio, centre, fragment_id, song_id]
+//  audio, centre, fragment_id, song_id, fragment_data, idle_button_colour]
 const SORT_LABEL_INDEX = 0;
 const SORT_SLOT_INDEX = 1;
 const SORT_SHAPE_INDEX = 2;
@@ -943,9 +1170,13 @@ const SORT_AUDIO_INDEX = 6;
 const SORT_CENTRE_INDEX = 7;
 const SORT_ID_INDEX = 8;
 const SORT_SONG_ID_INDEX = 9;
+const SORT_DATA_INDEX = 10;
+const SORT_BUTTON_IDLE_COLOUR_INDEX = 11;
 
 let sorting_fragments = [];
+let sorting_fixed_fragments = [];
 let sorting_slot_positions = [];
+let sorting_sequence_positions = [];
 let sorting_equalizer_bars = [];
 let sorting_floating_notes = [];
 let sorting_dragged_fragment = undefined;
@@ -959,6 +1190,7 @@ let sorting_submit_button = undefined;
 let sorting_submit_text = undefined;
 let sorting_back_button = undefined;
 let sorting_back_text = undefined;
+let completed_fragment_sequence = [];
 const fragment_audio_cache = [];
 const AUDIO_CACHE_ID_INDEX = 0;
 const AUDIO_CACHE_SONG_ID_INDEX = 1;
@@ -975,6 +1207,19 @@ function create_fragment_audio_cache() {
       data[DATA_SONG_ID_INDEX],
       data[DATA_AUDIO_URL_INDEX],
       // The current Source Academy runtime accepts 0 or 1 here.
+      create_audio(data[DATA_AUDIO_URL_INDEX], 1)
+    ];
+  }
+
+  for (let index = 0;
+       index < array_length(FIXED_FRAGMENT_DATA);
+       index = index + 1) {
+    const data = FIXED_FRAGMENT_DATA[index][FIXED_DATA_INDEX];
+    const cache_index = FRAGMENT_COUNT + index;
+    fragment_audio_cache[cache_index] = [
+      data[DATA_ID_INDEX],
+      data[DATA_SONG_ID_INDEX],
+      data[DATA_AUDIO_URL_INDEX],
       create_audio(data[DATA_AUDIO_URL_INDEX], 1)
     ];
   }
@@ -1101,7 +1346,7 @@ function create_sorting_header() {
 
   register_sorting_object(
     update_color(
-      create_text("Drag records to swap. Click Play again to stop."),
+      create_text("Drag the 8 records to sort. FIXED records cannot move."),
       [220, 220, 230, 255]
     ),
     [CANVAS_WIDTH / 2, 145]
@@ -1115,16 +1360,106 @@ function create_sorting_header() {
 
 function create_sorting_slots() {
   const diameter = SORT_FRAGMENT_RADIUS * 2;
-  const total_width = FRAGMENT_COUNT * diameter
-    + (FRAGMENT_COUNT - 1) * SORT_FRAGMENT_GAP;
+  const total_width = SORT_TOTAL_SEQUENCE_COUNT * diameter
+    + (SORT_TOTAL_SEQUENCE_COUNT - 1) * SORT_FRAGMENT_GAP;
   const first_x = (CANVAS_WIDTH - total_width) / 2
     + SORT_FRAGMENT_RADIUS;
 
   sorting_slot_positions = [];
-  for (let index = 0; index < FRAGMENT_COUNT; index = index + 1) {
-    sorting_slot_positions[index] = [
+  sorting_sequence_positions = [];
+
+  for (let index = 0;
+       index < SORT_TOTAL_SEQUENCE_COUNT;
+       index = index + 1) {
+    const position = [
       first_x + index * (diameter + SORT_FRAGMENT_GAP),
       SORT_FRAGMENT_Y
+    ];
+    sorting_sequence_positions[index] = position;
+    register_sorting_object(
+      update_color(
+        update_scale(create_text(stringify(index + 1)), [0.62, 0.62]),
+        [145, 155, 185, 255]
+      ),
+      [position[0], SORT_FRAGMENT_Y - SORT_FRAGMENT_RADIUS - 19]
+    );
+  }
+
+  for (let index = 0; index < FRAGMENT_COUNT; index = index + 1) {
+    sorting_slot_positions[index] = sorting_sequence_positions[
+      SORTABLE_SEQUENCE_POSITIONS[index]
+    ];
+  }
+}
+
+function create_fixed_sorting_fragments() {
+  sorting_fixed_fragments = [];
+
+  for (let index = 0;
+       index < array_length(FIXED_FRAGMENT_DATA);
+       index = index + 1) {
+    const fixed_item = FIXED_FRAGMENT_DATA[index];
+    const data = fixed_item[FIXED_DATA_INDEX];
+    const position = sorting_sequence_positions[
+      fixed_item[FIXED_POSITION_INDEX]
+    ];
+
+    const disc = register_sorting_object(
+      update_color(
+        create_circle(SORT_FRAGMENT_RADIUS),
+        [246, 192, 67, 255]
+      ),
+      position
+    );
+    const centre = register_sorting_object(
+      update_color(
+        create_circle(SORT_FRAGMENT_RADIUS - 5),
+        [30, 27, 60, 255]
+      ),
+      position
+    );
+    const label_text = register_sorting_object(
+      update_color(
+        update_scale(
+          create_text("FIXED"),
+          [0.72, 0.72]
+        ),
+        [255, 235, 120, 255]
+      ),
+      position
+    );
+    const button_position = [
+      position[0],
+      position[1] + SORT_PREVIEW_OFFSET
+    ];
+    const button = register_sorting_object(
+      update_color(
+        create_rectangle(SORT_PREVIEW_WIDTH, SORT_PREVIEW_HEIGHT),
+        [181, 127, 35, 255]
+      ),
+      button_position
+    );
+    const button_text = register_sorting_object(
+      update_color(
+        update_scale(create_text("Play"), [0.72, 0.72]),
+        [255, 255, 255, 255]
+      ),
+      button_position
+    );
+
+    sorting_fixed_fragments[index] = [
+      fixed_item[FIXED_LABEL_INDEX],
+      fixed_item[FIXED_POSITION_INDEX],
+      disc,
+      label_text,
+      button,
+      button_text,
+      audio_for_fragment_data(data),
+      centre,
+      data[DATA_ID_INDEX],
+      data[DATA_SONG_ID_INDEX],
+      data,
+      [181, 127, 35, 255]
     ];
   }
 }
@@ -1197,7 +1532,9 @@ function create_sorting_fragments() {
       undefined,
       centre,
       "",
-      ""
+      "",
+      "",
+      [41, 128, 185, 255]
     ];
 
     sorting_fragments[index] = fragment;
@@ -1209,14 +1546,33 @@ function configure_sorting_fragments(fragment_list) {
   for (let index = 0; index < FRAGMENT_COUNT; index = index + 1) {
     const data = fragment_list[index];
     const fragment = sorting_fragments[index];
+    const label = label_for_fragment_id(data[DATA_ID_INDEX]);
     fragment[SORT_SLOT_INDEX] = SORT_INITIAL_SLOTS[index];
+    fragment[SORT_LABEL_INDEX] = label;
     fragment[SORT_AUDIO_INDEX] = audio_for_fragment_data(data);
     fragment[SORT_ID_INDEX] = data[DATA_ID_INDEX];
     fragment[SORT_SONG_ID_INDEX] = data[DATA_SONG_ID_INDEX];
+    fragment[SORT_DATA_INDEX] = data;
+    update_text(fragment[SORT_LABEL_TEXT_INDEX], label);
     update_text(fragment[SORT_BUTTON_TEXT_INDEX], "Play");
-    update_color(fragment[SORT_BUTTON_INDEX], [41, 128, 185, 255]);
+    update_color(
+      fragment[SORT_BUTTON_INDEX],
+      fragment[SORT_BUTTON_IDLE_COLOUR_INDEX]
+    );
     move_sorting_fragment_to_slot(fragment);
   }
+}
+
+function label_for_fragment_id(fragment_id) {
+  for (let index = 0;
+       index < FRAGMENT_COUNT;
+       index = index + 1) {
+    if (TARGET_FRAGMENT_IDS[index] === fragment_id) {
+      return TARGET_FRAGMENT_LABELS[index];
+    }
+  }
+
+  return "?";
 }
 
 function create_sorting_controls() {
@@ -1357,6 +1713,16 @@ function find_previewed_sorting_fragment() {
     }
   }
 
+  for (let index = 0;
+       index < array_length(sorting_fixed_fragments);
+       index = index + 1) {
+    const fragment = sorting_fixed_fragments[index];
+    if (pointer_over_gameobject(fragment[SORT_BUTTON_INDEX])
+        || pointer_over_gameobject(fragment[SORT_BUTTON_TEXT_INDEX])) {
+      return fragment;
+    }
+  }
+
   return undefined;
 }
 
@@ -1369,7 +1735,7 @@ function stop_sorting_audio() {
     );
     update_color(
       sorting_playing_fragment[SORT_BUTTON_INDEX],
-      [41, 128, 185, 255]
+      sorting_playing_fragment[SORT_BUTTON_IDLE_COLOUR_INDEX]
     );
     sorting_playing_fragment = undefined;
   }
@@ -1484,6 +1850,40 @@ function sorting_check_result() {
   return "solved";
 }
 
+function build_complete_fragment_sequence() {
+  const complete_sequence = [];
+
+  for (let index = 0;
+       index < array_length(FIXED_FRAGMENT_DATA);
+       index = index + 1) {
+    const fixed_item = FIXED_FRAGMENT_DATA[index];
+    complete_sequence[fixed_item[FIXED_POSITION_INDEX]] =
+      fixed_item[FIXED_DATA_INDEX];
+  }
+
+  for (let slot_index = 0;
+       slot_index < FRAGMENT_COUNT;
+       slot_index = slot_index + 1) {
+    const fragment = sorting_fragment_in_slot(slot_index);
+    const sequence_position = SORTABLE_SEQUENCE_POSITIONS[slot_index];
+    complete_sequence[sequence_position] = fragment[SORT_DATA_INDEX];
+  }
+
+  return complete_sequence;
+}
+
+function get_completed_fragment_sequence() {
+  const sequence_copy = [];
+
+  for (let index = 0;
+       index < array_length(completed_fragment_sequence);
+       index = index + 1) {
+    sequence_copy[index] = completed_fragment_sequence[index];
+  }
+
+  return sequence_copy;
+}
+
 function sorting_show_status(message) {
   update_text(sorting_status_text, message);
   update_to_top(sorting_status_text);
@@ -1502,7 +1902,8 @@ function submit_sorting_solution() {
   const result = sorting_check_result();
 
   if (result === "solved") {
-    sorting_finish("Puzzle Solved! You restored the melody.");
+    completed_fragment_sequence = build_complete_fragment_sequence();
+    sorting_finish("Puzzle Solved! The 10-part melody is complete.");
   } else if (result === "wrong_song") {
     sorting_show_status("Some fragments belong to another song. Use Back.");
   } else if (result === "wrong_fragments") {
@@ -1520,7 +1921,7 @@ function return_to_collection_level() {
   update_inventory_ui();
   update_text(
     collection_message_text,
-    "Returned. Replace fragments."
+    "Back on map."
   );
 }
 
@@ -1528,11 +1929,12 @@ function enter_sorting_level(fragment_list) {
   if (!fragment_list_is_valid(fragment_list)) {
     update_text(
       collection_message_text,
-      "Invalid fragment data."
+      "Invalid data."
     );
     return false;
   }
 
+  stop_collection_audio();
   stop_sorting_audio();
   hide_collection_scene();
   current_scene = SCENE_SORTING;
@@ -1540,6 +1942,7 @@ function enter_sorting_level(fragment_list) {
   sorting_active = true;
   sorting_dragged_fragment = undefined;
   sorting_playing_fragment = undefined;
+  completed_fragment_sequence = [];
   sorting_timer_started_at = get_game_time();
   sorting_time_remaining_ms = SORT_TIMER_DURATION_MS;
   configure_sorting_fragments(fragment_list);
@@ -1557,6 +1960,7 @@ function initialise_sorting_scene() {
   create_sorting_header();
   create_sorting_slots();
   create_sorting_fragments();
+  create_fixed_sorting_fragments();
   create_sorting_controls();
   create_sorting_animation();
   hide_sorting_scene();
@@ -1614,20 +2018,23 @@ function update_sorting_scene(
 function update_game(game_state) {
   const e_is_down = input_key_down("e");
   const q_is_down = input_key_down("q");
+  const r_is_down = input_key_down("r");
   const e_pressed = e_is_down && !e_was_down;
   const q_pressed = q_is_down && !q_was_down;
+  const r_pressed = r_is_down && !r_was_down;
   const mouse_is_down = input_left_mouse_down();
   const mouse_pressed = mouse_is_down && !mouse_was_down;
   const mouse_released = !mouse_is_down && mouse_was_down;
 
   if (current_scene === SCENE_COLLECTION) {
-    update_collection_scene(e_pressed, q_pressed);
+    update_collection_scene(e_pressed, q_pressed, r_pressed);
   } else if (current_scene === SCENE_SORTING) {
     update_sorting_scene(mouse_is_down, mouse_pressed, mouse_released);
   }
 
   e_was_down = e_is_down;
   q_was_down = q_is_down;
+  r_was_down = r_is_down;
   mouse_was_down = mouse_is_down;
 }
 
