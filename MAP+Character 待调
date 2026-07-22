@@ -15,15 +15,15 @@ import {
 } from "arcade_2d";
 
 const movement_dist=5;
-const WIDTH=600;
-const HEIGHT=600;
+const WIDTH=750;
+const HEIGHT=800;
 const TILE=25;
 const PLAYER_SIZE=TILE*0.5;
 const HALF=PLAYER_SIZE/2;
 
 set_dimensions([WIDTH,HEIGHT]);
 
-const ROWS=math_floor(600/TILE);
+const ROWS=math_floor(750/TILE);
 const COLS=math_floor(WIDTH/TILE);
 
 const map=[];
@@ -213,7 +213,29 @@ function spawn_note(){
         );
 
 
-        if(map[r][c]===0){
+        let far=true;
+
+
+        for(let i=0;i<array_length(notes);i=i+1){
+
+            const old_r=notes[i][0];
+            const old_c=notes[i][1];
+
+
+            const dr=r-old_r;
+            const dc=c-old_c;
+
+
+            if(dr*dr+dc*dc<16){
+
+                far=false;
+
+            }
+
+        }
+
+
+        if(map[r][c]===0&&far){
 
             map[r][c]=3;
 
@@ -222,9 +244,17 @@ function spawn_note(){
 
             const note =
             update_position(
-                update_scale(
-                    create_text("♪"),
-                    [2,2]
+                update_color(
+                    update_scale(
+                        create_text("♪"),
+                        [2,2]
+                    ),
+                    [
+                        math_floor(math_random()*255),
+                        math_floor(math_random()*255),
+                        math_floor(math_random()*255),
+                        255
+                    ]
                 ),
                 [
                     c*TILE+TILE/2,
@@ -233,21 +263,26 @@ function spawn_note(){
             );
 
 
-            note_objects[array_length(note_objects)]
-            =note;
+            note_objects[array_length(note_objects)]=note;
 
 
             break;
         }
+
     }
+
+}
+// 生成音符
+for(let i=0;i<15;i=i+1){
+    spawn_note();
 }
 
-spawn_note();
-spawn_note();
-spawn_note();
-//====================
-// 绘制地图
-//====================
+
+
+
+
+
+
 
 for(let i=0;i<ROWS;i=i+1){
 
@@ -303,13 +338,13 @@ let selected_slot=0;
 const inventory_text=
 update_position(
     create_text(""),
-    [300,580]
+    [400,760]
 );
 
 const pickup_text=
 update_position(
     create_text(""),
-    [300,600]
+    [400,780]
 );
 
 
@@ -541,16 +576,13 @@ function drop_item(x,y){
 function can_move(pos){
 
 
-    const left=
-    math_floor((pos[0]-HALF)/TILE);
+    const left=math_floor((pos[0]-HALF)/TILE);
 
 
-    const right=
-    math_floor((pos[0]+HALF)/TILE);
+    const right=math_floor((pos[0]+HALF)/TILE);
 
 
-    const top=
-    math_floor((pos[1]-HALF)/TILE);
+    const top=math_floor((pos[1]-HALF)/TILE);
 
     const bottom=math_floor((pos[1]+HALF)/TILE);
     if(left<0||right<0||top<0||bottom<0||left>=COLS||right>=COLS||top>=ROWS||
