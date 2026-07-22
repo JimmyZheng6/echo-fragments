@@ -1,14 +1,135 @@
 import {
+    create_text,
+    update_text,
     create_sprite,
     create_rectangle,
-    update_color,
     update_position,
     update_scale,
+    update_color,
     query_position,
     input_key_down,
     update_loop,
     build_game
 } from "arcade_2d";
+
+//======================
+// Inventory
+//======================
+
+const inventory = [
+    "",
+    "",
+    "",
+    "",
+    ""
+];
+
+let selected_slot = 0;
+
+//======================
+// Player Speed
+//======================
+
+const WALK_SPEED = 3;
+const RUN_SPEED = 12;
+
+// current space
+let current_speed = WALK_SPEED;
+
+//======================
+// Player Status
+//======================
+
+const MAX_HP = 100;
+let hp = 100;
+
+const MAX_STAMINA = 100;
+let stamina = 100;
+
+//======================
+// Highlight
+//======================
+
+let piece_scale = [];
+
+//======================
+// Inventory UI
+//======================
+
+const inventory_text =
+update_position(
+    create_text(""),
+    [300,550]
+);
+
+const pickup_text =
+update_position(
+    create_text(""),
+    [300,520]
+);
+
+function update_inventory() {
+
+    update_text(
+        inventory_text,
+
+        (selected_slot === 0 ? ">" : " ") +
+        "[1] " + inventory[0] +
+
+        "  " +
+
+        (selected_slot === 1 ? ">" : " ") +
+        "[2] " + inventory[1] +
+
+        "  " +
+
+        (selected_slot === 2 ? ">" : " ") +
+        "[3] " + inventory[2] +
+
+        "  " +
+
+        (selected_slot === 3 ? ">" : " ") +
+        "[4] " + inventory[3] +
+
+        "  " +
+
+        (selected_slot === 4 ? ">" : " ") +
+        "[5] " + inventory[4]
+    );
+
+    return undefined;
+}
+
+function add_item(item) {
+
+    let added = false;
+
+    for (let i = 0; i < 5; i = i + 1) {
+
+        if (!added && inventory[i] === "") {
+
+            inventory[i] = item;
+            added = true;
+
+        }
+
+    }
+
+    update_inventory();
+
+    return added;
+}
+
+function remove_item(slot) {
+
+    if (slot >= 0 && slot < 5) {
+        inventory[slot] = "";
+    }
+
+    update_inventory();
+
+    return undefined;
+}
 
 //======================
 // Player
@@ -24,139 +145,475 @@ update_position(
 );
 
 //======================
-// Speed
+// Status Bars
 //======================
 
-const WALK_SPEED = 3;
-const RUN_SPEED = 7;
+// HP Background
+const hp_back =
+update_position(
+    create_rectangle(50,4),
+    [300,260]
+);
 
-let speed = WALK_SPEED;
+// HP Front
+const hp_front =
+update_position(
+    create_rectangle(50,4),
+    [300,260]
+);
 
-//======================
-// Stamina
-//======================
-
-const MAX_STAMINA = 100;
-
-let stamina = MAX_STAMINA;
-
-//======================
-// Stamina Bar
-//======================
-
-// 背景
-
+// Stamina Background
 const stamina_back =
 update_position(
-    update_color(
-        create_rectangle(42,6),
-        [30,30,30,255]
-    ),
-    [300,250]
+    create_rectangle(50,4),
+    [300,266]
 );
 
-// 前景
-
+// Stamina Front
 const stamina_front =
 update_position(
-    update_color(
-        create_rectangle(40,4),
-        [0,255,80,255]
-    ),
-    [300,250]
+    create_rectangle(50,4),
+    [300,266]
 );
 
 //======================
-// Player
+// Set Colors
 //======================
 
-function move_player(){
+update_color(
+    hp_back,
+    [60,60,60,255]
+);
+
+update_color(
+    hp_front,
+    [220,40,40,255]
+);
+
+update_color(
+    stamina_back,
+    [60,60,60,255]
+);
+
+update_color(
+    stamina_front,
+    [40,220,80,255]
+);
+
+//======================
+// Player Functions
+//======================
+
+function move_player() {
 
     const p = query_position(player);
 
     let x = p[0];
     let y = p[1];
+    
+    //======================
+// Sprint
+//======================
 
-    if(input_key_down("f") && stamina > 0){
+if (input_key_down("f") && stamina > 0) {
 
-        speed = RUN_SPEED;
+    current_speed = RUN_SPEED;
 
-        stamina = stamina - 0.5;
+    stamina = stamina - 0.5;
 
-    }else{
+} else {
 
-        speed = WALK_SPEED;
+    current_speed = WALK_SPEED;
 
-        if(stamina < MAX_STAMINA){
+    if (stamina < MAX_STAMINA) {
 
-            stamina = stamina + 0.25;
+        stamina = stamina + 0.2;
+
+    }
+
+}
+
+if (stamina < 0) {
+    stamina = 0;
+}
+
+if (stamina > MAX_STAMINA) {
+    stamina = MAX_STAMINA;
+}
+
+  if (input_key_down("w")) {
+    y = y - current_speed;
+}
+
+if (input_key_down("s")) {
+    y = y + current_speed;
+}
+
+if (input_key_down("a")) {
+    x = x - current_speed;
+}
+
+if (input_key_down("d")) {
+    x = x + current_speed;
+}
+
+    update_position(player, [x, y]);
+
+    return [x, y];
+
+}
+
+function update_status_bars(x, y) {
+
+    update_position(
+        hp_back,
+        [x, y - 34]
+    );
+
+    update_position(
+        stamina_back,
+        [x, y - 28]
+    );
+
+    update_position(
+        hp_front,
+        [x, y - 34]
+    );
+
+    update_position(
+        stamina_front,
+        [x, y - 28]
+    );
+
+    update_scale(
+        hp_front,
+        [
+            hp / MAX_HP,
+            1
+        ]
+    );
+
+    update_scale(
+        stamina_front,
+        [
+            stamina / MAX_STAMINA,
+            1
+        ]
+    );
+
+}
+
+function select_slot() {
+
+    if (input_key_down("1")) {
+        selected_slot = 0;
+    }
+
+    if (input_key_down("2")) {
+        selected_slot = 1;
+    }
+
+    if (input_key_down("3")) {
+        selected_slot = 2;
+    }
+
+    if (input_key_down("4")) {
+        selected_slot = 3;
+    }
+
+    if (input_key_down("5")) {
+        selected_slot = 4;
+    }
+
+    update_inventory();
+
+}
+
+//======================
+// World Item Functions
+//======================
+
+function pickup_items(x, y) {
+
+    for (let i = 0; i < array_length(world_items); i = i + 1) {
+
+        if (world_items[i] !== undefined) {
+
+            const piece_pos =
+                query_position(world_items[i][1]);
+
+            const dx = x - piece_pos[0];
+            const dy = y - piece_pos[1];
+
+            if (dx * dx + dy * dy < 35 * 35 &&
+                input_key_down("e")) {
+
+                add_item(world_items[i][0]);
+
+                update_position(
+                    world_items[i][1],
+                    [-1000, -1000]
+                );
+
+                world_items[i] = undefined;
+
+            }
 
         }
 
     }
 
-    if(input_key_down("w")){
-        y = y - speed;
+}
+
+function update_pickup_text(x, y) {
+
+    let show = false;
+
+    for (let i = 0; i < array_length(world_items); i = i + 1) {
+
+        if (world_items[i] !== undefined) {
+
+            const piece_pos =
+                query_position(world_items[i][1]);
+
+            const dx = x - piece_pos[0];
+            const dy = y - piece_pos[1];
+
+            if (dx * dx + dy * dy < 35 * 35) {
+
+                show = true;
+
+            }
+
+        }
+
     }
 
-    if(input_key_down("s")){
-        y = y + speed;
+    if (show) {
+
+        update_text(
+            pickup_text,
+            "Press E to Pick Up"
+        );
+
+    } else {
+
+        update_text(
+            pickup_text,
+            ""
+        );
+
     }
 
-    if(input_key_down("a")){
-        x = x - speed;
+}
+
+function highlight_items(x, y) {
+
+    for (let i = 0; i < array_length(world_items); i = i + 1) {
+
+        if (world_items[i] !== undefined) {
+
+            const pos =
+                query_position(world_items[i][1]);
+
+            const dx = x - pos[0];
+            const dy = y - pos[1];
+
+            if (dx * dx + dy * dy < 80 * 80) {
+
+                if (piece_scale[i] < 0.35) {
+                    piece_scale[i] =
+                        piece_scale[i] + 0.005;
+                }
+
+            } else {
+
+                if (piece_scale[i] > 0.25) {
+                    piece_scale[i] =
+                        piece_scale[i] - 0.005;
+                }
+
+            }
+
+           if (piece_scale[i] === undefined) {
+    piece_scale[i] = 0.25;
+}
+
+if (piece_scale[i] === undefined) {
+    piece_scale[i] = 0.25;
+}
+
+update_scale(
+    world_items[i][1],
+    [piece_scale[i], piece_scale[i]]
+);
+
+        }
+
     }
 
-    if(input_key_down("d")){
-        x = x + speed;
+}
+
+function drop_item(x, y) {
+
+    if (input_key_down("q")) {
+
+        const item = inventory[selected_slot];
+
+        if (item !== "") {
+
+            update_position(
+    drop_pool[next_drop],
+    [x + 40, y]
+);
+
+const new_index = array_length(world_items);
+
+world_items[new_index] =
+    [item, drop_pool[next_drop], false];
+
+piece_scale[new_index] = 0.25;
+
+//new drop
+piece_scale[array_length(world_items) - 1] = 0.25;
+
+remove_item(selected_slot);
+
+            next_drop = next_drop + 1;
+
+            if (next_drop >= array_length(drop_pool)) {
+                next_drop = 0;
+            }
+
+        }
+
     }
-
-    update_position(player,[x,y]);
-
-    return [x,y];
 
 }
 
 //======================
-// Stamina Bar
+// World Items
 //======================
 
-function update_bar(x,y){
+// 每个元素：
+// [名字, sprite, 是否已拾取]
 
-    // 放到头顶
-
-    update_position(
-        stamina_back,
-        [x,y-55]
-    );
-
-    update_position(
-        stamina_front,
-        [x,y-55]
-    );
-
-    // 平滑长度
-
+const piece1 =
+update_position(
     update_scale(
-        stamina_front,
-        [stamina / MAX_STAMINA,1]
-    );
+        create_sprite("objects/cmr/splendall.png"),
+        [0.25,0.25]
+    ),
+    [500,300]
+);
 
+const piece2 =
+update_position(
+    update_scale(
+        create_sprite("objects/cmr/splendall.png"),
+        [0.25,0.25]
+    ),
+    [220,180]
+);
+
+const piece3 =
+update_position(
+    update_scale(
+        create_sprite("objects/cmr/splendall.png"),
+        [0.25,0.25]
+    ),
+    [420,450]
+);
+
+const world_items = [
+
+    ["Piece1", piece1, false],
+
+    ["Piece2", piece2, false],
+
+    ["Piece3", piece3, false]
+
+];
+
+for (let i = 0; i < array_length(world_items); i = i + 1) {
+    piece_scale[i] = 0.25;
 }
 
 //======================
-// Loop
+// Drop Pool
 //======================
 
-update_loop(game_state=>{
+const drop_pool = [
 
-    const p = move_player();
+    update_position(
+        update_scale(
+            create_sprite("objects/cmr/splendall.png"),
+            [0.25,0.25]
+        ),
+        [-1000,-1000]
+    ),
 
-    update_bar(
-        p[0],
-        p[1]
-    );
+    update_position(
+        update_scale(
+            create_sprite("objects/cmr/splendall.png"),
+            [0.25,0.25]
+        ),
+        [-1000,-1000]
+    ),
+
+    update_position(
+        update_scale(
+            create_sprite("objects/cmr/splendall.png"),
+            [0.25,0.25]
+        ),
+        [-1000,-1000]
+    ),
+
+    update_position(
+        update_scale(
+            create_sprite("objects/cmr/splendall.png"),
+            [0.25,0.25]
+        ),
+        [-1000,-1000]
+    ),
+
+    update_position(
+        update_scale(
+            create_sprite("objects/cmr/splendall.png"),
+            [0.25,0.25]
+        ),
+        [-1000,-1000]
+    )
+
+];
+
+let next_drop = 0;
+
+update_loop(game_state => {
+
+   const player_pos = move_player();
+
+const x = player_pos[0];
+const y = player_pos[1];
+    
+select_slot();
+
+highlight_items(x, y);
+
+update_pickup_text(x, y);
+
+pickup_items(x, y);
+
+drop_item(x, y);
+
+update_status_bars(x, y);
 
 });
+
+//======================
+// Test Inventory
+//======================
+
+update_inventory();
 
 build_game();
