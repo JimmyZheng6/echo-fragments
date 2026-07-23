@@ -199,9 +199,35 @@ const left_lengths = list(
 
 
 
-// Easy Version
-// Hard Version
-// Extremely Hard
+// Easy Version---------------------
+
+
+// false_fragment_a
+
+
+const right_notes = list(
+   "G4", "F5", "E5", "D5", "C5", "E5"
+);
+
+const right_lengths = list(
+   0.5, 1 , 1, 1, 1, 1.5
+
+);
+
+const left_notes = list(
+    "R", "D2", "A2", "D3", "E3", "F3", "A3",
+    "E2", "B2", "E3", "G#3", "B4"
+);
+
+
+const left_lengths = list(
+    0.5, 0.5, 0.5, 0.5, 1, 1,
+    0.5, 0.5, 0.5, 0.5, 1
+);
+
+
+// Hard Version------------------------
+// Extremely Hard----------------------
 
 
 
