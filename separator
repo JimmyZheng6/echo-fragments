@@ -1,0 +1,63 @@
+// Sum of a list
+
+function sum(xs) {
+    return is_null(xs)
+        ? 0
+        : head(xs) + sum(tail(xs));
+}
+
+
+// Total duration of the song
+const total_duration = sum(right_lengths);
+
+
+// Generate 4 random split times
+const split_times = [
+    math_random() * total_duration,
+    math_random() * total_duration,
+    math_random() * total_duration,
+    math_random() * total_duration
+];
+
+// Sort them
+split_times.sort((a, b) => a - b);
+
+// ---------- Find right-hand split positions ----------
+let accumulated = 0;
+let right_position = 0;
+let split_index = 0;
+
+let right_lengths_copy = right_lengths;
+
+while (!is_null(right_lengths_copy) && split_index < 4) {
+    accumulated = accumulated + head(right_lengths_copy);
+    right_position = right_position + 1;
+
+    if (accumulated >= split_times[split_index]) {
+        display("Right split " + stringify(split_index + 1) +
+                " after note " + stringify(right_position));
+        split_index = split_index + 1;
+    }
+
+    right_lengths_copy = tail(right_lengths_copy);
+}
+
+// ---------- Find left-hand split positions ----------
+accumulated = 0;
+let left_position = 0;
+split_index = 0;
+
+let left_lengths_copy = left_lengths;
+
+while (!is_null(left_lengths_copy) && split_index < 4) {
+    accumulated = accumulated + head(left_lengths_copy);
+    left_position = left_position + 1;
+
+    if (accumulated >= split_times[split_index]) {
+        display("Left split " + stringify(split_index + 1) +
+                " after note " + stringify(left_position));
+        split_index = split_index + 1;
+    }
+
+    left_lengths_copy = tail(left_lengths_copy);
+}

@@ -1,0 +1,79 @@
+import {
+    consecutively,
+    silence_sound,
+    sine_sound,
+    letter_name_to_frequency,
+    play,
+    simultaneously,
+    make_sound,
+    get_wave,
+    get_duration
+} from "sound";
+
+
+
+function fragments_play(array_fragment){
+    
+    // get each part
+    
+    const right_notes = array_fragment[0];
+    const right_lengths = array_fragment[1];
+    
+    const left_notes = array_fragment[2];
+    const left_lengths = array_fragment[3];
+    
+    
+    function make_sound_list(notes, lengths) {
+        return is_null(notes)
+            ? null
+            : pair(
+                  head(notes) === "R"
+                      ? silence_sound(head(lengths))
+                      : make_sound(
+                            t => (letter_name_to_frequency(head(notes)) > letter_name_to_frequency("F5")
+                            ? 0.14
+                            : 1)
+                            * get_wave(
+                                sine_sound(letter_name_to_frequency(head(notes)),head(lengths)))(t),
+                        head(lengths)
+                        ),
+                  make_sound_list(tail(notes), tail(lengths))
+              );
+    }
+
+    
+    
+    
+    // Speed changing tool
+    
+    const fast_right_lengths = map(x => x * 0.5, right_lengths);
+    const fast_left_lengths = map(x => x * 0.5, left_lengths);
+    
+    
+    // Volume changing tool
+    
+    function change_volume(sound, volume) {
+        return make_sound(
+            t => volume * get_wave(sound)(t),
+            get_duration(sound)
+        );
+    }
+    
+    
+    
+    const right_hand = consecutively(
+        make_sound_list(right_notes, fast_right_lengths)
+    );
+    
+    const left_hand = change_volume(
+        consecutively(make_sound_list(left_notes, fast_left_lengths)),
+        0.8
+    );
+    
+    
+    
+    
+    
+    play(simultaneously(list(right_hand, left_hand)));
+
+}
