@@ -257,6 +257,7 @@ let hp = MAX_HP;
 let stamina = MAX_STAMINA;
 let current_speed = WALK_SPEED;
 let hp_back = undefined;
+let sprint_locked = false;
 let hp_front = undefined;
 let stamina_back = undefined;
 let stamina_front = undefined;
@@ -572,14 +573,14 @@ function create_player_and_status() {
 function create_collection_key_hint(key_text, action_text, y, key_width) {
   register_collection_object(
     update_color(
-      create_rectangle(key_width + 4, 30),
+      create_rectangle(key_width + 4, 28),
       [8, 11, 30, 255]
     ),
     [783, y + 2]
   );
   register_collection_object(
     update_color(
-      create_rectangle(key_width, 26),
+      create_rectangle(key_width, 24),
       [72, 47, 118, 255]
     ),
     [783, y]
@@ -603,8 +604,8 @@ function create_collection_key_hint(key_text, action_text, y, key_width) {
 function create_collection_ui() {
   // Right-side control panel.
   register_collection_object(
-    update_color(create_rectangle(138, 770), [18, 22, 52, 245]),
-    [825, 400]
+    update_color(create_rectangle(138, 720), [18, 22, 52, 245]),
+    [825, 375]
   );
   register_collection_object(
     update_color(create_rectangle(126, 4), [198, 74, 230, 255]),
@@ -626,40 +627,40 @@ function create_collection_ui() {
   );
 
   register_collection_object(
-    update_color(create_rectangle(116, 250), [25, 31, 70, 255]),
-    [825, 230]
+    update_color(create_rectangle(116, 238), [25, 31, 70, 255]),
+    [825, 235]
   );
   register_collection_object(
     update_color(create_rectangle(102, 2), [73, 84, 135, 255]),
-    [825, 142]
+    [825, 135]
   );
   register_collection_object(
     update_color(
       update_scale(create_text("MISSION"), [0.7, 0.7]),
       [255, 255, 255, 255]
     ),
-    [825, 122]
+    [825, 116]
   );
   register_collection_object(
     update_color(
       update_scale(create_text("♪"), [3.0, 3.0]),
       [220, 78, 239, 255]
     ),
-    [825, 220]
+    [825, 218]
   );
   collection_progress_text = register_collection_object(
     update_color(
       update_scale(create_text("0 / 8"), [1.22, 1.22]),
       [255, 255, 255, 255]
     ),
-    [825, 308]
+    [825, 305]
   );
   register_collection_object(
     update_color(
       update_scale(create_text("COLLECTED"), [0.58, 0.58]),
       [255, 255, 255, 255]
     ),
-    [825, 338]
+    [825, 334]
   );
 
   register_collection_object(
@@ -667,34 +668,36 @@ function create_collection_ui() {
       update_scale(create_text("CONTROLS"), [0.78, 0.78]),
       [255, 255, 255, 255]
     ),
-    [825, 382]
+    [825, 410]
   );
   register_collection_object(
     update_color(create_rectangle(112, 2), [75, 84, 130, 255]),
-    [825, 404]
+    [825, 430]
   );
 
-  create_collection_key_hint("WASD", "MOVE", 432, 44);
-  create_collection_key_hint("F", "SPRINT", 474, 28);
-  create_collection_key_hint("R", "PREVIEW", 516, 28);
-  create_collection_key_hint("E", "COLLECT", 558, 28);
-  create_collection_key_hint("Q", "DROP", 600, 28);
-  create_collection_key_hint("1-8", "SELECT NOTE", 642, 28);
+  create_collection_key_hint("WASD", "MOVE", 458, 44);
+  create_collection_key_hint("F", "SPRINT", 496, 28);
+  create_collection_key_hint("R", "PREVIEW", 534, 28);
+  create_collection_key_hint("E", "COLLECT", 572, 28);
+  create_collection_key_hint("Q", "DROP", 610, 28);
+  create_collection_key_hint("1-8", "SELECT NOTE", 648, 28);
+  
+  
 
   register_collection_object(
-    update_color(create_rectangle(126, 110), [29, 35, 72, 255]),
-    [825, 725]
+    update_color(create_rectangle(126, 84), [29, 35, 72, 255]),
+    [825, 720]
   );
   register_collection_object(
     update_color(
       update_scale(create_text("STATUS"), [0.74, 0.74]),
       [255, 255, 255, 255]
     ),
-    [825, 688]
+    [825, 690]
   );
   register_collection_object(
     update_color(create_rectangle(108, 1), [75, 84, 130, 255]),
-    [825, 706]
+    [825, 743]
   );
 
   // Bottom inventory panel.
@@ -741,7 +744,7 @@ function create_collection_ui() {
       update_scale(create_text(""), [0.66, 0.66]),
       [255, 255, 255, 255]
     ),
-    [825, 729]
+    [825, 676]
   );
 
   collection_message_text = register_collection_object(
@@ -749,7 +752,7 @@ function create_collection_ui() {
       update_scale(create_text("Find 8 notes."), [0.62, 0.62]),
       [255, 255, 255, 255]
     ),
-    [825, 758]
+    [825, 708]
   );
 }
 
@@ -794,7 +797,7 @@ function update_inventory_ui() {
       update_color(
         inventory_texts[index],
         colour_for_fragment(inventory[index])
-      );
+        );
     }
   }
 
@@ -900,15 +903,28 @@ function move_player() {
   let x = position[0];
   let y = position[1];
 
-  if (input_key_down("f") && stamina > 0) {
-    current_speed = RUN_SPEED;
-    stamina = stamina - 1;
-  } else {
-    current_speed = WALK_SPEED;
-    if (stamina < MAX_STAMINA) {
-      stamina = stamina + 0.5;
-    }
+  if (!input_key_down("f")) {
+  sprint_locked = false;
+      
   }
+  if (input_key_down("f")
+    && !sprint_locked
+    && stamina > 0) {
+        current_speed = RUN_SPEED;
+        stamina = stamina - 1.5;
+        if (stamina <= 0) {
+            stamina = 0;
+            sprint_locked = true;
+            
+        }
+    } else {
+        current_speed = WALK_SPEED;
+        if (stamina < MAX_STAMINA) {
+            stamina = stamina + 0.5;
+            
+        }
+        
+    }
 
   if (stamina < 0) {
     stamina = 0;
@@ -1041,22 +1057,23 @@ function drop_selected_fragment(position) {
 
     if (item[WORLD_DATA_INDEX][DATA_ID_INDEX]
         === fragment_data[DATA_ID_INDEX]) {
-      item[WORLD_ACTIVE_INDEX] = true;
-      item[WORLD_ROW_INDEX] = item[WORLD_SPAWN_ROW_INDEX];
-      item[WORLD_COL_INDEX] = item[WORLD_SPAWN_COL_INDEX];
-      item[WORLD_SCALE_INDEX] = 1.8;
-      update_scale(item[WORLD_OBJECT_INDEX], [1.8, 1.8]);
-      update_position(
-        item[WORLD_OBJECT_INDEX],
-        [
-          item[WORLD_SPAWN_COL_INDEX] * TILE + TILE / 2,
-          item[WORLD_SPAWN_ROW_INDEX] * TILE + TILE / 2
-        ]
-      );
-      remove_from_inventory(selected_slot);
-      update_text(collection_message_text, "Dropped.");
-      return undefined;
-    }
+            item[WORLD_ACTIVE_INDEX] = true;
+            item[WORLD_ROW_INDEX] = item[WORLD_SPAWN_ROW_INDEX];
+            item[WORLD_COL_INDEX] = item[WORLD_SPAWN_COL_INDEX];
+            item[WORLD_SCALE_INDEX] = 1.8;
+            update_scale(item[WORLD_OBJECT_INDEX], [1.8, 1.8]);
+            update_position(
+                item[WORLD_OBJECT_INDEX],
+                [
+                    item[WORLD_SPAWN_COL_INDEX] * TILE + TILE / 2,
+                    item[WORLD_SPAWN_ROW_INDEX] * TILE + TILE / 2
+                    ]
+                    );
+                    remove_from_inventory(selected_slot);
+                    update_text(collection_message_text, "Dropped.");
+                    return undefined;
+            
+        }
   }
 
   return undefined;
