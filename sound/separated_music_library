@@ -199,7 +199,8 @@ const left_lengths = list(
 
 
 
-// Easy Version---------------------
+// Hard Version---------------------
+
 
 
 // false_fragment_a
@@ -210,13 +211,68 @@ const right_notes = list(
 );
 
 const right_lengths = list(
-   0.5, 1 , 1, 1, 1, 1.5
+   0.5, 1 , 1, 1, 1, 2
 
 );
 
 const left_notes = list(
     "R", "D2", "A2", "D3", "E3", "F3", "A3",
-    "E2", "B2", "E3", "G#3", "B4"
+    "E2", "B2", "E3", "G#3", "B3"
+);
+
+
+const left_lengths = list(
+    0.5, 0.5, 0.5, 0.5, 0.5, 1, 1,
+    0.5, 0.5, 0.5, 0.5, 0.5
+);
+
+
+
+// false_fragment_b
+
+
+const right_notes = list(
+   "A4", "B4", "C5", "B4", "C5", "D5", "C5", "G4", "G4"
+);
+
+const right_lengths = list(
+   0.5, 0.5, 1 , 0.5, 0.5, 1, 1.5, 0.5, 1
+
+);
+
+const left_notes = list(
+    "F2", "C3", "A3", "G2", "D3", "B3",
+    "E2", "C3", "E3", "G3", "C4"
+);
+
+
+const left_lengths = list(
+    0.5, 0.5, 1, 0.5, 0.5, 1,
+    0.5, 0.5, 0.5, 0.5, 1
+);
+
+
+
+
+// Extremely Hard----------------------
+
+
+
+// false_fragment_c
+
+
+const right_notes = list(
+   "F5", "E5", "D5", "C5", "E5"
+);
+
+const right_lengths = list(
+   1, 1, 1, 1, 2
+
+);
+
+const left_notes = list(
+    "D2", "A2", "D3", "E3", "F3", "A3",
+    "E2", "B3", "E3", "G#3", "B3"
 );
 
 
@@ -226,8 +282,36 @@ const left_lengths = list(
 );
 
 
-// Hard Version------------------------
-// Extremely Hard----------------------
+
+
+// false_fragment_d
+
+
+const right_notes = list(
+   "C5", "D5", "E5", "D5", "E5", "G5", "D5", 
+    "G4", "C5", "B4", "C5", "E5", "B4"
+);
+
+const right_lengths = list(
+    0.5, 0.5, 1.5, 0.5, 1, 1, 3, 
+    1, 1.5, 0.5, 1, 1, 1.5
+
+);
+
+
+const left_notes = list(
+    "R", "C3", "G3", "C4", "D4", "E4",
+    "B2", "G3", "B3", "D4", "G4",
+    "A2", "E3", "A3", "B3", "C4", 
+    "G2", "E3", "G3", "B3", "E4"
+
+);
+
+
+const left_lengths = list(
+    1, 0.5, 0.5, 0.5, 0.5, 2, 0.5, 0.5, 0.5, 0.5, 2,
+    0.5, 0.5, 0.5, 0.5, 2, 0.5, 0.5, 0.5, 0.5, 1
+);
 
 
 
