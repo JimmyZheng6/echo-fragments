@@ -247,6 +247,8 @@ const WORLD_COL_INDEX = 3;
 const WORLD_ACTIVE_INDEX = 4;
 const WORLD_COLOUR_INDEX = 5;
 const WORLD_SCALE_INDEX = 6;
+const WORLD_SPAWN_ROW_INDEX = 7;
+const WORLD_SPAWN_COL_INDEX = 8;
 
 let player = undefined;
 let goal_object = undefined;
@@ -533,7 +535,9 @@ function create_world_fragments() {
       column,
       true,
       colour,
-      1.8
+      1.8,
+      row,
+      column
     ];
   }
 }
@@ -1033,19 +1037,23 @@ function drop_selected_fragment(position) {
 
     if (item[WORLD_DATA_INDEX][DATA_ID_INDEX]
         === fragment_data[DATA_ID_INDEX]) {
-      item[WORLD_ACTIVE_INDEX] = true;
-      item[WORLD_ROW_INDEX] = math_floor(position[1] / TILE);
-      item[WORLD_COL_INDEX] = math_floor(position[0] / TILE);
-      item[WORLD_SCALE_INDEX] = 1.8;
-      update_scale(item[WORLD_OBJECT_INDEX], [1.8, 1.8]);
-      update_position(
-        item[WORLD_OBJECT_INDEX],
-        [position[0] + 28, position[1]]
-      );
-      remove_from_inventory(selected_slot);
-      update_text(collection_message_text, "Dropped.");
-      return undefined;
-    }
+            item[WORLD_ACTIVE_INDEX] = true;
+            item[WORLD_ROW_INDEX] = item[WORLD_SPAWN_ROW_INDEX];
+            item[WORLD_COL_INDEX] = item[WORLD_SPAWN_COL_INDEX];
+            item[WORLD_SCALE_INDEX] = 1.8;
+            update_scale(item[WORLD_OBJECT_INDEX], [1.8, 1.8]);
+            update_position(
+                item[WORLD_OBJECT_INDEX],
+                [
+                    item[WORLD_SPAWN_COL_INDEX] * TILE + TILE / 2,
+                    item[WORLD_SPAWN_ROW_INDEX] * TILE + TILE / 2
+                    ]
+                    );
+                    remove_from_inventory(selected_slot);
+                    update_text(collection_message_text, "Dropped.");
+                    return undefined;
+            
+        }
   }
 
   return undefined;
