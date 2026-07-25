@@ -7,9 +7,11 @@ import {
     simultaneously,
     silence_sound,
     play,
-    letter_name_to_midi_note
+    letter_name_to_midi_note,
+    make_sound,
+    get_wave,
+    get_duration
 } from "sound";
-
 
 
 
