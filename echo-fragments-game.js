@@ -33,6 +33,10 @@ const SCENE_START = "start";
 const SCENE_LISTENING = "listening";
 const SCENE_COLLECTION = "collection";
 const SCENE_SORTING = "sorting";
+const SCENE_SUCCESS = "success";
+const SCENE_PRIZE = "prize";
+const SCENE_FAILURE = "failure";
+const SCENE_INSTRUCTIONS = "instructions";
 
 // Every fragment in every scene uses exactly this structure:
 // [fragment_id, song_id, audio_url]
@@ -61,18 +65,27 @@ const AUDIO_BASE_URL =
 const ASSET_BASE_URL =
   "https://raw.githubusercontent.com/JimmyZheng6/"
   + "echo-fragments/main/assets/";
+const ASSET_VERSION = "?v=20260726-layout-alignment-2";
 const START_MENU_BACKGROUND_URL =
-  ASSET_BASE_URL + "start-menu-background.png";
+  ASSET_BASE_URL + "start-menu-background.png" + ASSET_VERSION;
 const LISTENING_BACKGROUND_URL =
-  ASSET_BASE_URL + "listening-background.png";
+  ASSET_BASE_URL + "listening-background.png" + ASSET_VERSION;
+const SUCCESS_BACKGROUND_URL =
+  ASSET_BASE_URL + "success.png" + ASSET_VERSION;
+const PRIZE_BACKGROUND_URL =
+  ASSET_BASE_URL + "prize.jpg" + ASSET_VERSION;
+const FAILURE_BACKGROUND_URL =
+  ASSET_BASE_URL + "failure.jpg" + ASSET_VERSION;
 
-// Both uploaded backgrounds use a 4:3 source image. A uniform scale fills
-// the 900 x 800 canvas while preserving the artwork's proportions.
-const START_MENU_BACKGROUND_SCALE = CANVAS_HEIGHT / 1728;
-const LISTENING_BACKGROUND_SCALE = CANVAS_HEIGHT / 1728;
+// The start artwork is 2304 x 1728. The listening and ending artworks are
+// 2000 x 1778. Independent axes make every image fill the 900 x 800 canvas.
+const START_BACKGROUND_SCALE_X = CANVAS_WIDTH / 2304;
+const START_BACKGROUND_SCALE_Y = CANVAS_HEIGHT / 1728;
+const FULLSCREEN_BACKGROUND_SCALE_X = CANVAS_WIDTH / 2000;
+const FULLSCREEN_BACKGROUND_SCALE_Y = CANVAS_HEIGHT / 1778;
 const START_ORBIT_CENTRE_X = CANVAS_WIDTH / 2;
 const START_ORBIT_CENTRE_Y = 0;
-const LISTENING_NOTE_ORIGIN_X = 548;
+const LISTENING_NOTE_ORIGIN_X = 533;
 const LISTENING_NOTE_ORIGIN_Y = 245;
 
 // The first eight entries are the target song. The final four are
@@ -268,10 +281,20 @@ const listening_saved_positions = [];
 const sorting_objects = [];
 const sorting_saved_positions = [];
 const start_objects = [];
+const start_saved_positions = [];
+const instruction_objects = [];
+const instruction_saved_positions = [];
+const success_objects = [];
+const success_saved_positions = [];
+const prize_objects = [];
+const prize_saved_positions = [];
+const failure_objects = [];
+const failure_saved_positions = [];
 const start_vortex_stars = [];
 let easy_menu_button = undefined;
 let hard_menu_button = undefined;
 let extreme_menu_button = undefined;
+let start_instructions_button = undefined;
 
 const START_BUTTON_BACKGROUND_INDEX = 0;
 const START_BUTTON_TITLE_INDEX = 1;
@@ -286,6 +309,30 @@ function register_start_object(gameobject, position) {
   return gameobject;
 }
 
+function register_instruction_object(gameobject, position) {
+  update_position(gameobject, position);
+  instruction_objects[array_length(instruction_objects)] = gameobject;
+  return gameobject;
+}
+
+function register_success_object(gameobject, position) {
+  update_position(gameobject, position);
+  success_objects[array_length(success_objects)] = gameobject;
+  return gameobject;
+}
+
+function register_prize_object(gameobject, position) {
+  update_position(gameobject, position);
+  prize_objects[array_length(prize_objects)] = gameobject;
+  return gameobject;
+}
+
+function register_failure_object(gameobject, position) {
+  update_position(gameobject, position);
+  failure_objects[array_length(failure_objects)] = gameobject;
+  return gameobject;
+}
+
 function create_start_button(
   title,
   detail,
@@ -295,7 +342,7 @@ function create_start_button(
   hover_colour
 ) {
   const background = register_start_object(
-    update_color(create_rectangle(252, 92), idle_colour),
+    update_color(create_rectangle(216, 92), idle_colour),
     [CANVAS_WIDTH / 2, y]
   );
   const title_text = register_start_object(
@@ -336,8 +383,8 @@ function create_start_menu() {
     update_scale(
       create_sprite(START_MENU_BACKGROUND_URL),
       [
-        START_MENU_BACKGROUND_SCALE,
-        START_MENU_BACKGROUND_SCALE
+        START_BACKGROUND_SCALE_X,
+        START_BACKGROUND_SCALE_Y
       ]
     ),
     [CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2]
@@ -399,6 +446,22 @@ function create_start_menu() {
     [255, 255, 255, 0],
     [255, 255, 255, 54]
   );
+
+  const instructions_background = register_start_object(
+    update_color(create_rectangle(176, 42), [12, 17, 48, 215]),
+    [792, 758]
+  );
+  const instructions_text = register_start_object(
+    update_color(
+      update_scale(create_text("HOW TO PLAY"), [0.72, 0.72]),
+      [255, 255, 255, 255]
+    ),
+    [792, 758]
+  );
+  start_instructions_button = [
+    instructions_background,
+    instructions_text
+  ];
 }
 
 function pointer_over_start_button(button) {
@@ -416,11 +479,35 @@ function update_start_button_hover(button) {
   );
 }
 
+function pointer_over_small_button(button) {
+  return pointer_over_gameobject(button[0])
+    || pointer_over_gameobject(button[1]);
+}
+
+function update_start_instructions_hover() {
+  update_color(
+    start_instructions_button[0],
+    pointer_over_small_button(start_instructions_button)
+      ? [69, 79, 135, 245]
+      : [12, 17, 48, 215]
+  );
+}
+
 function hide_start_scene() {
   for (let index = 0;
        index < array_length(start_objects);
        index = index + 1) {
+    const position = query_position(start_objects[index]);
+    start_saved_positions[index] = [position[0], position[1]];
     update_position(start_objects[index], [-4000, -4000]);
+  }
+}
+
+function show_start_scene() {
+  for (let index = 0;
+       index < array_length(start_objects);
+       index = index + 1) {
+    update_position(start_objects[index], start_saved_positions[index]);
   }
 }
 
@@ -484,6 +571,7 @@ function update_start_scene(mouse_pressed) {
   update_start_button_hover(easy_menu_button);
   update_start_button_hover(hard_menu_button);
   update_start_button_hover(extreme_menu_button);
+  update_start_instructions_hover();
 
   if (mouse_pressed) {
     if (pointer_over_start_button(easy_menu_button)) {
@@ -492,6 +580,10 @@ function update_start_scene(mouse_pressed) {
       start_selected_difficulty(DIFFICULTY_HARD);
     } else if (pointer_over_start_button(extreme_menu_button)) {
       start_selected_difficulty(DIFFICULTY_EXTREME);
+    } else if (pointer_over_small_button(start_instructions_button)) {
+      hide_start_scene();
+      show_instruction_scene();
+      current_scene = SCENE_INSTRUCTIONS;
     }
   }
 }
@@ -577,6 +669,60 @@ function show_sorting_scene() {
   }
 }
 
+function hide_object_group(objects, saved_positions, hidden_x) {
+  for (let index = 0;
+       index < array_length(objects);
+       index = index + 1) {
+    const position = query_position(objects[index]);
+    saved_positions[index] = [position[0], position[1]];
+    update_position(objects[index], [hidden_x, hidden_x]);
+  }
+}
+
+function show_object_group(objects, saved_positions) {
+  for (let index = 0;
+       index < array_length(objects);
+       index = index + 1) {
+    update_position(objects[index], saved_positions[index]);
+  }
+}
+
+function hide_instruction_scene() {
+  hide_object_group(
+    instruction_objects,
+    instruction_saved_positions,
+    -5200
+  );
+}
+
+function show_instruction_scene() {
+  show_object_group(instruction_objects, instruction_saved_positions);
+}
+
+function hide_success_scene() {
+  hide_object_group(success_objects, success_saved_positions, -5400);
+}
+
+function show_success_scene() {
+  show_object_group(success_objects, success_saved_positions);
+}
+
+function hide_prize_scene() {
+  hide_object_group(prize_objects, prize_saved_positions, -5600);
+}
+
+function show_prize_scene() {
+  show_object_group(prize_objects, prize_saved_positions);
+}
+
+function hide_failure_scene() {
+  hide_object_group(failure_objects, failure_saved_positions, -5800);
+}
+
+function show_failure_scene() {
+  show_object_group(failure_objects, failure_saved_positions);
+}
+
 // ============================================================
 // Full-song listening scene
 // ============================================================
@@ -612,8 +758,8 @@ function create_listening_scene() {
     update_scale(
       create_sprite(LISTENING_BACKGROUND_URL),
       [
-        LISTENING_BACKGROUND_SCALE,
-        LISTENING_BACKGROUND_SCALE
+        FULLSCREEN_BACKGROUND_SCALE_X,
+        FULLSCREEN_BACKGROUND_SCALE_Y
       ]
     ),
     [CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2]
@@ -869,15 +1015,20 @@ const PLAYER_HALF = PLAYER_SIZE / 2;
 const WALK_SPEED = 3;
 const RUN_SPEED = 9;
 const MAX_HP = 100;
+const MAX_LIVES = 3;
 const MAX_STAMINA = 100;
 const MAX_MONSTER_COUNT = 7;
 const MONSTER_HALF = 9;
 const MONSTER_SPEED = 1.15;
-const MONSTER_CHASE_DISTANCE = 125;
+const MONSTER_CHASE_DISTANCE = 160;
 const MONSTER_ATTACK_DISTANCE = 24;
 const MONSTER_DAMAGE = 10;
 const MONSTER_ATTACK_COOLDOWN_MS = 850;
 const MONSTER_FLASH_DURATION_MS = 160;
+const HEALTH_PACK_COUNT = 2;
+const HEALTH_PACK_REFRESH_MS = 30 * 1000;
+const HEALTH_PACK_HEAL_AMOUNT = 40;
+const HEALTH_PACK_PICKUP_DISTANCE = 24;
 const MONSTER_COLOURS = [
   [117, 45, 156, 255],
   [166, 53, 112, 255],
@@ -918,6 +1069,7 @@ const wall_visuals = [];
 let reachable_cells = [];
 const world_fragments = [];
 const world_monsters = [];
+const world_health_packs = [];
 const inventory = ["", "", "", "", "", "", "", ""];
 const inventory_texts = [];
 const inventory_slot_backs = [];
@@ -948,10 +1100,21 @@ const MONSTER_PHASE_INDEX = 7;
 const MONSTER_COLOUR_INDEX = 8;
 const MONSTER_FLASH_UNTIL_INDEX = 9;
 
+// world_health_packs item:
+// [aura, box, vertical_cross, horizontal_cross, active, row, column]
+const HEALTH_AURA_INDEX = 0;
+const HEALTH_BOX_INDEX = 1;
+const HEALTH_VERTICAL_INDEX = 2;
+const HEALTH_HORIZONTAL_INDEX = 3;
+const HEALTH_ACTIVE_INDEX = 4;
+const HEALTH_ROW_INDEX = 5;
+const HEALTH_COL_INDEX = 6;
+
 let player = undefined;
 let goal_object = undefined;
 let selected_slot = 0;
 let hp = MAX_HP;
+let lives_remaining = MAX_LIVES;
 let stamina = MAX_STAMINA;
 let current_speed = WALK_SPEED;
 let sprint_locked = false;
@@ -962,8 +1125,10 @@ let stamina_front = undefined;
 let collection_action_text = undefined;
 let collection_message_text = undefined;
 let collection_progress_text = undefined;
+let collection_lives_text = undefined;
 let collection_playing_item = undefined;
 let last_monster_attack_at = -MONSTER_ATTACK_COOLDOWN_MS;
+let last_health_pack_refresh_at = 0;
 let player_defeated = false;
 
 function initialise_map() {
@@ -1381,6 +1546,161 @@ function create_world_monsters() {
   }
 }
 
+function health_pack_position_is_valid(row, column, pack_index) {
+  if (map[row][column] !== 0
+      || !reachable_cells[row][column]
+      || (row <= 4 && column <= 4)
+      || (row >= ROWS - 5 && column >= COLS - 5)) {
+    return false;
+  }
+
+  for (let index = 0;
+       index < array_length(world_fragments);
+       index = index + 1) {
+    const fragment = world_fragments[index];
+    const delta_row = row - fragment[WORLD_ROW_INDEX];
+    const delta_column = column - fragment[WORLD_COL_INDEX];
+    if (delta_row * delta_row + delta_column * delta_column < 9) {
+      return false;
+    }
+  }
+
+  for (let index = 0;
+       index < array_length(world_monsters);
+       index = index + 1) {
+    const monster = world_monsters[index];
+    const delta_row = row - monster[MONSTER_SPAWN_ROW_INDEX];
+    const delta_column = column - monster[MONSTER_SPAWN_COL_INDEX];
+    if (delta_row * delta_row + delta_column * delta_column < 9) {
+      return false;
+    }
+  }
+
+  for (let index = 0; index < HEALTH_PACK_COUNT; index = index + 1) {
+    const other_pack = world_health_packs[index];
+    if (index !== pack_index
+        && other_pack !== undefined
+        && other_pack[HEALTH_ACTIVE_INDEX]) {
+      const delta_row = row - other_pack[HEALTH_ROW_INDEX];
+      const delta_column = column - other_pack[HEALTH_COL_INDEX];
+      if (delta_row * delta_row + delta_column * delta_column < 16) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function move_health_pack(pack, position) {
+  update_position(pack[HEALTH_AURA_INDEX], position);
+  update_position(pack[HEALTH_BOX_INDEX], position);
+  update_position(pack[HEALTH_VERTICAL_INDEX], position);
+  update_position(pack[HEALTH_HORIZONTAL_INDEX], position);
+}
+
+function hide_health_pack(pack) {
+  move_health_pack(pack, HIDDEN_POSITION);
+}
+
+function create_world_health_packs() {
+  for (let index = 0; index < HEALTH_PACK_COUNT; index = index + 1) {
+    const aura = register_collection_object(
+      update_color(create_circle(14), [73, 215, 169, 105]),
+      HIDDEN_POSITION
+    );
+    const box = register_collection_object(
+      update_color(create_rectangle(20, 20), [241, 246, 248, 255]),
+      HIDDEN_POSITION
+    );
+    const vertical_cross = register_collection_object(
+      update_color(create_rectangle(5, 15), [229, 67, 85, 255]),
+      HIDDEN_POSITION
+    );
+    const horizontal_cross = register_collection_object(
+      update_color(create_rectangle(15, 5), [229, 67, 85, 255]),
+      HIDDEN_POSITION
+    );
+
+    world_health_packs[index] = [
+      aura,
+      box,
+      vertical_cross,
+      horizontal_cross,
+      false,
+      0,
+      0
+    ];
+  }
+}
+
+function refresh_world_health_packs() {
+  for (let index = 0; index < HEALTH_PACK_COUNT; index = index + 1) {
+    let row = 1;
+    let column = 1;
+
+    while (!health_pack_position_is_valid(row, column, index)) {
+      row = 1 + math_floor(math_random() * (ROWS - 2));
+      column = 1 + math_floor(math_random() * (COLS - 2));
+    }
+
+    const pack = world_health_packs[index];
+    pack[HEALTH_ACTIVE_INDEX] = true;
+    pack[HEALTH_ROW_INDEX] = row;
+    pack[HEALTH_COL_INDEX] = column;
+    move_health_pack(
+      pack,
+      [column * TILE + TILE / 2, row * TILE + TILE / 2]
+    );
+  }
+
+  last_health_pack_refresh_at = get_game_time();
+}
+
+function update_world_health_packs(player_position) {
+  const now = get_game_time();
+
+  if (now - last_health_pack_refresh_at >= HEALTH_PACK_REFRESH_MS) {
+    refresh_world_health_packs();
+    update_text(
+      collection_message_text,
+      "Two health packs refreshed."
+    );
+  }
+
+  for (let index = 0; index < HEALTH_PACK_COUNT; index = index + 1) {
+    const pack = world_health_packs[index];
+
+    if (pack[HEALTH_ACTIVE_INDEX]) {
+      const position = query_position(pack[HEALTH_BOX_INDEX]);
+      const delta_x = player_position[0] - position[0];
+      const delta_y = player_position[1] - position[1];
+      const distance_squared =
+        delta_x * delta_x + delta_y * delta_y;
+
+      if (distance_squared
+            < HEALTH_PACK_PICKUP_DISTANCE * HEALTH_PACK_PICKUP_DISTANCE
+          && hp < MAX_HP) {
+        hp = math_min(MAX_HP, hp + HEALTH_PACK_HEAL_AMOUNT);
+        pack[HEALTH_ACTIVE_INDEX] = false;
+        hide_health_pack(pack);
+        update_text(
+          collection_message_text,
+          "Health pack! HP: " + stringify(hp)
+        );
+      } else {
+        const pulse =
+          0.88 + 0.2 * (1 + math_sin(now / 150 + index)) / 2;
+        update_scale(pack[HEALTH_AURA_INDEX], [pulse, pulse]);
+        update_to_top(pack[HEALTH_AURA_INDEX]);
+        update_to_top(pack[HEALTH_BOX_INDEX]);
+        update_to_top(pack[HEALTH_VERTICAL_INDEX]);
+        update_to_top(pack[HEALTH_HORIZONTAL_INDEX]);
+      }
+    }
+  }
+}
+
 function create_player_and_status() {
   player = register_collection_object(
     update_scale(
@@ -1529,11 +1849,19 @@ function create_collection_ui() {
       update_scale(create_text("STATUS"), [0.74, 0.74]),
       [255, 255, 255, 255]
     ),
-    [825, 688]
+    [825, 682]
   );
   register_collection_object(
     update_color(create_rectangle(108, 1), [75, 84, 130, 255]),
-    [825, 706]
+    [825, 699]
+  );
+
+  collection_lives_text = register_collection_object(
+    update_color(
+      update_scale(create_text("LIVES: 3"), [0.72, 0.72]),
+      [255, 224, 118, 255]
+    ),
+    [825, 716]
   );
 
   // Bottom inventory panel.
@@ -1580,7 +1908,7 @@ function create_collection_ui() {
       update_scale(create_text(""), [0.66, 0.66]),
       [255, 255, 255, 255]
     ),
-    [825, 729]
+    [825, 742]
   );
 
   collection_message_text = register_collection_object(
@@ -1588,7 +1916,14 @@ function create_collection_ui() {
       update_scale(create_text("Find 8 notes."), [0.62, 0.62]),
       [255, 255, 255, 255]
     ),
-    [825, 758]
+    [825, 770]
+  );
+}
+
+function update_lives_ui() {
+  update_text(
+    collection_lives_text,
+    "LIVES: " + stringify(lives_remaining)
   );
 }
 
@@ -1886,9 +2221,19 @@ function update_world_monsters(player_position) {
           now + MONSTER_FLASH_DURATION_MS;
 
         if (hp === 0) {
+          lives_remaining = lives_remaining - 1;
+          if (lives_remaining < 0) {
+            lives_remaining = 0;
+          }
+          update_lives_ui();
           player_defeated = true;
           stop_collection_audio();
-          update_text(collection_message_text, "Defeated by a monster.");
+          update_text(
+            collection_message_text,
+            lives_remaining === 0
+              ? "No lives remaining."
+              : "Life lost! Press E to revive."
+          );
         } else {
           update_text(
             collection_message_text,
@@ -1924,7 +2269,10 @@ function revive_player() {
   );
   update_player_status(query_position(player));
   update_text(collection_action_text, "");
-  update_text(collection_message_text, "Revived at the start.");
+  update_text(
+    collection_message_text,
+    "Revived. Lives: " + stringify(lives_remaining)
+  );
 }
 
 function update_player_status(position) {
@@ -2160,6 +2508,11 @@ function update_collection_prompt(position, nearby_item) {
 
 function update_collection_scene(e_pressed, q_pressed, r_pressed) {
   if (player_defeated) {
+    if (lives_remaining === 0) {
+      enter_failure_scene();
+      return undefined;
+    }
+
     if (e_pressed) {
       revive_player();
     }
@@ -2178,9 +2531,15 @@ function update_collection_scene(e_pressed, q_pressed, r_pressed) {
 
   const position = move_player();
   update_world_monsters(position);
-  update_player_status(position);
 
   if (player_defeated) {
+    update_player_status(position);
+
+    if (lives_remaining === 0) {
+      enter_failure_scene();
+      return undefined;
+    }
+
     update_text(collection_action_text, "E: REVIVE");
     update_to_top(player);
     update_to_top(hp_back);
@@ -2190,6 +2549,8 @@ function update_collection_scene(e_pressed, q_pressed, r_pressed) {
     return undefined;
   }
 
+  update_world_health_packs(position);
+  update_player_status(position);
   const nearby_item = find_nearby_world_fragment(position);
   select_inventory_slot();
   highlight_world_fragments(position);
@@ -2231,9 +2592,11 @@ function initialise_collection_scene() {
   create_collection_world();
   create_world_fragments();
   create_world_monsters();
+  create_world_health_packs();
   create_player_and_status();
   create_collection_ui();
   update_inventory_ui();
+  update_lives_ui();
   update_player_status(query_position(player));
 }
 
@@ -2318,6 +2681,7 @@ function apply_collection_difficulty() {
 
   selected_slot = 0;
   hp = MAX_HP;
+  lives_remaining = MAX_LIVES;
   stamina = MAX_STAMINA;
   current_speed = WALK_SPEED;
   sprint_locked = false;
@@ -2327,7 +2691,9 @@ function apply_collection_difficulty() {
     player,
     [START_COL * TILE + TILE / 2, START_ROW * TILE + TILE / 2]
   );
+  refresh_world_health_packs();
   update_inventory_ui();
+  update_lives_ui();
   update_player_status(query_position(player));
 }
 
@@ -3629,6 +3995,7 @@ function submit_sorting_solution() {
   if (result === "solved") {
     completed_fragment_sequence = build_complete_fragment_sequence();
     sorting_finish("Puzzle Solved! The 10-part melody is complete.");
+    enter_success_scene();
   } else if (result === "wrong_song") {
     sorting_show_status("Some fragments belong to another song. Use Back.");
   } else if (result === "wrong_fragments") {
@@ -3738,6 +4105,368 @@ function update_sorting_scene(
 }
 
 // ============================================================
+// Instructions, success, prize and failure scenes
+// ============================================================
+
+let instruction_back_button = undefined;
+let success_back_button = undefined;
+let success_prize_button = undefined;
+let failure_back_button = undefined;
+let prize_back_button = undefined;
+const prize_music_buttons = [];
+let prize_playing_index = -1;
+
+const PRIZE_BUTTON_OBJECT_INDEX = 0;
+const PRIZE_BUTTON_AUDIO_INDEX = 1;
+const PRIZE_BUTTON_NAME_INDEX = 2;
+
+function create_scene_hotspot(register_function, position, width, height) {
+  return register_function(
+    update_color(create_rectangle(width, height), [255, 255, 255, 0]),
+    position
+  );
+}
+
+function update_scene_hotspot(button, hover_colour) {
+  update_color(
+    button,
+    pointer_over_gameobject(button)
+      ? hover_colour
+      : [255, 255, 255, 0]
+  );
+}
+
+function create_instruction_scene() {
+  register_instruction_object(
+    update_color(
+      create_rectangle(CANVAS_WIDTH, CANVAS_HEIGHT),
+      [8, 12, 35, 255]
+    ),
+    [CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2]
+  );
+  register_instruction_object(
+    update_color(create_rectangle(820, 690), [20, 28, 62, 245]),
+    [450, 390]
+  );
+  register_instruction_object(
+    update_color(
+      update_scale(create_text("HOW TO PLAY"), [2.15, 2.15]),
+      [255, 255, 255, 255]
+    ),
+    [450, 62]
+  );
+  register_instruction_object(
+    update_color(
+      update_scale(
+        create_text("LISTEN  >  EXPLORE  >  COLLECT  >  SORT"),
+        [0.94, 0.94]
+      ),
+      [109, 217, 240, 255]
+    ),
+    [450, 112]
+  );
+
+  const guide_lines = [
+    "GOAL",
+    "Find the 8 correct melody fragments.",
+    "Rebuild the complete song.",
+    "MAP CONTROLS",
+    "WASD: Move    F: Sprint    R: Preview",
+    "E: Collect / Enter sorting    Q: Drop",
+    "1-8: Select an inventory slot.",
+    "SURVIVAL",
+    "You have 3 lives. Monster attacks reduce HP.",
+    "Two health packs respawn every 30 seconds.",
+    "SORTING",
+    "Listen, compare and drag the 8 records.",
+    "Press Submit when the order is complete.",
+    "DIFFICULTY",
+    "Easy: 0    Hard: 2    Extreme: 4 decoys"
+  ];
+
+  for (let index = 0;
+       index < array_length(guide_lines);
+       index = index + 1) {
+    const is_heading =
+      index === 0
+      || index === 3
+      || index === 7
+      || index === 10
+      || index === 13;
+    register_instruction_object(
+      update_color(
+        update_scale(
+          create_text(guide_lines[index]),
+          is_heading ? [1.24, 1.24] : [1, 1]
+        ),
+        [255, 255, 255, 255]
+      ),
+      [450, 158 + index * 34]
+    );
+  }
+
+  instruction_back_button = create_scene_hotspot(
+    register_instruction_object,
+    [450, 735],
+    190,
+    52
+  );
+  register_instruction_object(
+    update_color(
+      update_scale(create_text("BACK"), [0.92, 0.92]),
+      [255, 255, 255, 255]
+    ),
+    [450, 735]
+  );
+}
+
+function create_success_scene() {
+  register_success_object(
+    update_color(
+      create_rectangle(CANVAS_WIDTH, CANVAS_HEIGHT),
+      [17, 41, 72, 255]
+    ),
+    [450, 400]
+  );
+  register_success_object(
+    update_scale(
+      create_sprite(SUCCESS_BACKGROUND_URL),
+      [
+        FULLSCREEN_BACKGROUND_SCALE_X,
+        FULLSCREEN_BACKGROUND_SCALE_Y
+      ]
+    ),
+    [450, 400]
+  );
+  success_back_button = create_scene_hotspot(
+    register_success_object,
+    [219, 663],
+    236,
+    112
+  );
+  success_prize_button = create_scene_hotspot(
+    register_success_object,
+    [680, 663],
+    236,
+    112
+  );
+}
+
+function create_failure_scene() {
+  register_failure_object(
+    update_color(
+      create_rectangle(CANVAS_WIDTH, CANVAS_HEIGHT),
+      [42, 5, 27, 255]
+    ),
+    [450, 400]
+  );
+  register_failure_object(
+    update_scale(
+      create_sprite(FAILURE_BACKGROUND_URL),
+      [
+        FULLSCREEN_BACKGROUND_SCALE_X,
+        FULLSCREEN_BACKGROUND_SCALE_Y
+      ]
+    ),
+    [450, 400]
+  );
+  failure_back_button = create_scene_hotspot(
+    register_failure_object,
+    [450, 595],
+    234,
+    106
+  );
+}
+
+function add_prize_music_button(name, filename, position, size) {
+  const button = create_scene_hotspot(
+    register_prize_object,
+    position,
+    size[0],
+    size[1]
+  );
+  const audio = create_audio(AUDIO_BASE_URL + filename, 1);
+  prize_music_buttons[array_length(prize_music_buttons)] = [
+    button,
+    audio,
+    name
+  ];
+}
+
+function create_prize_scene() {
+  register_prize_object(
+    update_color(
+      create_rectangle(CANVAS_WIDTH, CANVAS_HEIGHT),
+      [104, 143, 179, 255]
+    ),
+    [450, 400]
+  );
+  register_prize_object(
+    update_scale(
+      create_sprite(PRIZE_BACKGROUND_URL),
+      [
+        FULLSCREEN_BACKGROUND_SCALE_X,
+        FULLSCREEN_BACKGROUND_SCALE_Y
+      ]
+    ),
+    [450, 400]
+  );
+
+  // These areas are converted directly from the 2000 x 1778 artwork into
+  // 900 x 800 canvas coordinates, so the hitboxes follow the drawn buttons.
+  add_prize_music_button("VIOLIN", "violin.mp3", [194, 49], [172, 66]);
+  add_prize_music_button("CELLO", "cello.mp3", [804, 109], [172, 66]);
+  add_prize_music_button("PIANO", "piano.mp3", [567, 263], [172, 66]);
+  add_prize_music_button("BELL", "bell.mp3", [721, 409], [172, 66]);
+  add_prize_music_button(
+    "TROMBONE",
+    "trombone.mp3",
+    [95, 495],
+    [172, 66]
+  );
+  add_prize_music_button(
+    "SIN",
+    "Castle%20in%20the%20Sky.mp3",
+    [343, 746],
+    [172, 66]
+  );
+
+  prize_back_button = create_scene_hotspot(
+    register_prize_object,
+    [790, 647],
+    172,
+    66
+  );
+}
+
+function stop_prize_audio() {
+  if (prize_playing_index >= 0) {
+    const entry = prize_music_buttons[prize_playing_index];
+    stop_audio(entry[PRIZE_BUTTON_AUDIO_INDEX]);
+    prize_playing_index = -1;
+  }
+}
+
+function return_to_start_menu() {
+  stop_collection_audio();
+  stop_sorting_audio();
+  stop_prize_audio();
+  game_has_started = false;
+  current_scene = SCENE_START;
+  show_start_scene();
+}
+
+function enter_success_scene() {
+  stop_sorting_audio();
+  hide_sorting_scene();
+  show_success_scene();
+  current_scene = SCENE_SUCCESS;
+}
+
+function enter_failure_scene() {
+  stop_collection_audio();
+  hide_collection_scene();
+  show_failure_scene();
+  current_scene = SCENE_FAILURE;
+}
+
+function update_instruction_scene(mouse_pressed) {
+  update_scene_hotspot(
+    instruction_back_button,
+    [255, 255, 255, 58]
+  );
+
+  if (mouse_pressed
+      && pointer_over_gameobject(instruction_back_button)) {
+    hide_instruction_scene();
+    return_to_start_menu();
+  }
+}
+
+function update_success_scene(mouse_pressed) {
+  update_scene_hotspot(
+    success_back_button,
+    [255, 255, 255, 60]
+  );
+  update_scene_hotspot(
+    success_prize_button,
+    [255, 255, 255, 60]
+  );
+
+  if (mouse_pressed) {
+    if (pointer_over_gameobject(success_back_button)) {
+      hide_success_scene();
+      return_to_start_menu();
+    } else if (pointer_over_gameobject(success_prize_button)) {
+      hide_success_scene();
+      show_prize_scene();
+      current_scene = SCENE_PRIZE;
+    }
+  }
+}
+
+function update_failure_scene(mouse_pressed) {
+  update_scene_hotspot(
+    failure_back_button,
+    [255, 255, 255, 55]
+  );
+
+  if (mouse_pressed
+      && pointer_over_gameobject(failure_back_button)) {
+    hide_failure_scene();
+    return_to_start_menu();
+  }
+}
+
+function update_prize_scene(mouse_pressed) {
+  update_scene_hotspot(
+    prize_back_button,
+    [255, 255, 255, 58]
+  );
+
+  for (let index = 0;
+       index < array_length(prize_music_buttons);
+       index = index + 1) {
+    const entry = prize_music_buttons[index];
+    const button = entry[PRIZE_BUTTON_OBJECT_INDEX];
+    update_color(
+      button,
+      prize_playing_index === index
+        ? [255, 224, 116, 82]
+        : pointer_over_gameobject(button)
+        ? [255, 255, 255, 58]
+        : [255, 255, 255, 0]
+    );
+  }
+
+  if (mouse_pressed) {
+    if (pointer_over_gameobject(prize_back_button)) {
+      stop_prize_audio();
+      hide_prize_scene();
+      show_success_scene();
+      current_scene = SCENE_SUCCESS;
+      return undefined;
+    }
+
+    for (let index = 0;
+         index < array_length(prize_music_buttons);
+         index = index + 1) {
+      const entry = prize_music_buttons[index];
+      if (pointer_over_gameobject(entry[PRIZE_BUTTON_OBJECT_INDEX])) {
+        if (prize_playing_index === index) {
+          stop_prize_audio();
+        } else {
+          stop_prize_audio();
+          play_audio(entry[PRIZE_BUTTON_AUDIO_INDEX]);
+          prize_playing_index = index;
+        }
+        return undefined;
+      }
+    }
+  }
+}
+
+// ============================================================
 // One shared update loop for every scene
 // ============================================================
 
@@ -3760,6 +4489,14 @@ function update_game(game_state) {
     update_collection_scene(e_pressed, q_pressed, r_pressed);
   } else if (current_scene === SCENE_SORTING) {
     update_sorting_scene(mouse_is_down, mouse_pressed, mouse_released);
+  } else if (current_scene === SCENE_SUCCESS) {
+    update_success_scene(mouse_pressed);
+  } else if (current_scene === SCENE_PRIZE) {
+    update_prize_scene(mouse_pressed);
+  } else if (current_scene === SCENE_FAILURE) {
+    update_failure_scene(mouse_pressed);
+  } else if (current_scene === SCENE_INSTRUCTIONS) {
+    update_instruction_scene(mouse_pressed);
   }
 
   e_was_down = e_is_down;
@@ -3777,6 +4514,14 @@ initialise_sorting_scene();
 create_listening_scene();
 hide_listening_scene();
 create_start_menu();
+create_instruction_scene();
+hide_instruction_scene();
+create_success_scene();
+hide_success_scene();
+create_prize_scene();
+hide_prize_scene();
+create_failure_scene();
+hide_failure_scene();
 update_loop(update_game);
 
 // build_game must be the final statement in Source Academy.
