@@ -2,6 +2,7 @@ import {
     piano,
     cello,
     violin,
+    bell,
     trombone,
     consecutively,
     simultaneously,
