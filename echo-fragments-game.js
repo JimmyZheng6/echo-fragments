@@ -742,6 +742,8 @@ let listening_countdown_started_at = 0;
 let listening_song_audio = undefined;
 let listening_play_button = undefined;
 let listening_play_button_text = undefined;
+let listening_skip_button = undefined;
+let listening_skip_button_text = undefined;
 let listening_status_text = undefined;
 let listening_countdown_text = undefined;
 
@@ -783,12 +785,23 @@ function create_listening_scene() {
   listening_status_text = register_listening_object(
     update_color(
       update_scale(
-        create_text("Listen carefully before entering the map."),
+        create_text("Listen carefully, or skip directly to the map."),
         [0.67, 0.67]
       ),
       [211, 220, 248, 255]
     ),
     [450, 674]
+  );
+  listening_skip_button = register_listening_object(
+    update_color(create_rectangle(154, 48), [27, 34, 79, 235]),
+    [792, 744]
+  );
+  listening_skip_button_text = register_listening_object(
+    update_color(
+      update_scale(create_text("SKIP TO MAP  >"), [0.58, 0.58]),
+      [255, 255, 255, 255]
+    ),
+    [792, 744]
   );
   listening_countdown_text = register_listening_object(
     update_color(
@@ -850,9 +863,11 @@ function reset_listening_scene() {
   update_text(listening_play_button_text, "PLAY FULL SONG");
   update_color(listening_play_button, [117, 130, 175, 235]);
   update_color(listening_play_button_text, [255, 255, 255, 255]);
+  update_color(listening_skip_button, [27, 34, 79, 235]);
+  update_color(listening_skip_button_text, [255, 255, 255, 255]);
   update_text(
     listening_status_text,
-    "Listen carefully before entering the map."
+    "Listen carefully, or skip directly to the map."
   );
   update_text(listening_countdown_text, "");
   update_position(listening_countdown_text, HIDDEN_POSITION);
@@ -912,7 +927,7 @@ function start_full_song() {
   update_color(listening_play_button, [91, 79, 139, 240]);
   update_text(
     listening_status_text,
-    "Follow the melody. The map opens when the song ends."
+    "Follow the melody, or skip directly to the map."
   );
 }
 
@@ -945,6 +960,27 @@ function enter_collection_from_listening() {
 
 function update_listening_scene(mouse_pressed) {
   animate_listening_vortex();
+
+  const pointer_over_skip =
+    pointer_over_gameobject(listening_skip_button)
+    || pointer_over_gameobject(listening_skip_button_text);
+  update_color(
+    listening_skip_button,
+    pointer_over_skip
+      ? [137, 155, 211, 250]
+      : [27, 34, 79, 235]
+  );
+  update_color(
+    listening_skip_button_text,
+    pointer_over_skip
+      ? [255, 229, 121, 255]
+      : [255, 255, 255, 255]
+  );
+
+  if (mouse_pressed && pointer_over_skip) {
+    enter_collection_from_listening();
+    return undefined;
+  }
 
   if (listening_state === LISTENING_IDLE) {
     const pointer_over_play =
