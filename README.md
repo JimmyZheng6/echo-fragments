@@ -1,78 +1,120 @@
-# Echo Fragments
+<h1 align="center">Echo Fragments</h1>
 
 <p align="center">
+  <strong>Listen. Explore. Collect. Reconstruct.</strong>
+</p>
+
+<p align="center">
+  An interactive music puzzle game created for the<br>
   <strong>NUS School of Computing Summer Workshop 2026</strong><br>
   <strong>Structure and Interpretation of Computer Programs (SICP) Final Project</strong>
 </p>
 
 <p align="center">
-  An interactive music puzzle game built with JavaScript and Source Academy.
-</p>
-
-<p align="center">
-  <strong>Latest Release:</strong>
   <a href="https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0">
-    Echo Fragments v1.0.0
+    <img src="https://img.shields.io/badge/release-v1.0.0-7057ff" alt="Release v1.0.0">
+  </a>
+  <img src="https://img.shields.io/badge/language-JavaScript-f7df1e" alt="JavaScript">
+  <img src="https://img.shields.io/badge/platform-Source%20Academy-1f6feb" alt="Source Academy">
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-2ea44f" alt="MIT License">
   </a>
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/start-menu.png" alt="Echo Fragments start menu" width="820">
+  <img src="docs/screenshots/start-menu.png" alt="Echo Fragments start menu" width="850">
 </p>
 
-## About the Project
+## About the Game
 
-**Echo Fragments** combines music synthesis, exploration, survival, audio
-recognition, and drag-and-drop sequence reconstruction.
+**Echo Fragments** is an audio-driven exploration and sorting game built with
+JavaScript in Source Academy.
 
-A complete melody has been broken into fragments and scattered across a
-procedurally generated map. Players first listen to the original song, then
-explore the map, preview nearby fragments, collect the correct pieces, and
-restore the melody before time runs out.
+A melody has been broken into fragments and scattered across a procedurally
+generated world. Listen to the original song, explore the map, preview nearby
+fragments, collect the correct pieces, and reconstruct the melody before time
+runs out.
 
-Visual labels and colours are randomized between games. In harder modes,
-distractor fragments are mixed into the map, so players must identify the
-correct music by listening instead of memorizing a fixed answer.
+Visual labels and colours change between games. Harder modes also introduce
+distractor fragments, so the puzzle must be solved by listening rather than by
+memorizing a fixed visual answer.
 
-## Gameplay Showcase
+## Play and Download
 
-### 1. Choose a Difficulty and Listen
+- **Latest version:** [Echo Fragments v1.0.0](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0)
+- **Gameplay video:** [Watch or download the MP4](https://github.com/JimmyZheng6/echo-fragments/releases/download/v1.0.0/echo-fragments-gameplay.mp4)
+- **Source code:** Download **Source code (zip)** from the [v1.0.0 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0)
+- **Project poster:** [View the poster PDF](docs/echo-fragments-poster.pdf)
 
-<table>
-  <tr>
-    <td width="50%">
-      <img src="docs/screenshots/start-menu.png" alt="Difficulty selection menu">
-    </td>
-    <td width="50%">
-      <img src="docs/screenshots/listening-screen.png" alt="Full-song listening screen">
-    </td>
-  </tr>
-  <tr>
-    <td align="center"><strong>Difficulty Selection</strong></td>
-    <td align="center"><strong>Listen to the Complete Song</strong></td>
-  </tr>
-</table>
+> Echo Fragments runs inside the Source Academy Playground. It is not a
+> standalone executable game.
 
-### 2. Explore, Preview, and Collect
+## How to Play
+
+1. Choose **Easy**, **Hard**, or **Extreme**.
+2. Listen carefully to the complete song.
+3. Enter the map after the animated countdown.
+4. Explore the map while avoiding monsters.
+5. Press `R` near a fragment to preview its sound.
+6. Press `E` to collect a fragment if you think it belongs to the song.
+7. Manage your inventory, health, stamina, and three lives.
+8. Collect all eight correct fragments and reach the goal.
+9. In the sorting stage, listen to the records and drag them into the correct
+   musical order.
+10. Submit the sequence before the timer reaches zero.
+
+### Difficulty Levels
+
+| Difficulty | Correct fragments | Distractor fragments | Experience |
+| --- | ---: | ---: | --- |
+| Easy | 8 | 0 | Focus on learning the melody and order |
+| Hard | 8 | 2 | Identify and reject two incorrect fragments |
+| Extreme | 8 | 4 | Identify and reject four incorrect fragments |
+
+## Controls
+
+### Exploration
+
+| Input | Action |
+| --- | --- |
+| `W` `A` `S` `D` | Move the character |
+| `F` | Sprint while stamina is available |
+| `R` | Preview a nearby music fragment |
+| `E` | Collect a fragment or enter the sorting stage |
+| `Q` | Drop the selected fragment near the character |
+| `1`–`8` | Select an inventory slot |
+
+Uppercase and lowercase movement keys are both supported.
+
+### Menus and Sorting
+
+| Input | Action |
+| --- | --- |
+| Mouse click | Select difficulty, press buttons, preview audio, and submit |
+| Mouse drag | Move a record to another sorting slot |
+| Click the active Play button again | Stop the current fragment |
+
+## Gameplay Screenshots
+
+### Listen to the Song
 
 <p align="center">
-  <img src="docs/screenshots/map-gameplay.png" alt="Map exploration gameplay" width="820">
+  <img src="docs/screenshots/listening-screen.png" alt="Full-song listening screen" width="850">
 </p>
 
-Explore a procedurally generated map, avoid monsters, manage health and
-stamina, preview nearby music fragments, and collect the eight correct pieces.
-
-### 3. Reconstruct the Melody
+### Explore and Collect
 
 <p align="center">
-  <img src="docs/screenshots/sorting-gameplay.png" alt="Music fragment sorting gameplay" width="820">
+  <img src="docs/screenshots/map-gameplay.png" alt="Map exploration gameplay" width="850">
 </p>
 
-Listen to individual fragments and drag the movable records into their correct
-musical order. Fixed records provide reference positions, while distractors
-must be recognized and excluded.
+### Reconstruct the Melody
 
-### 4. Complete the Game
+<p align="center">
+  <img src="docs/screenshots/sorting-gameplay.png" alt="Music fragment sorting gameplay" width="850">
+</p>
+
+### Endings and Prize
 
 <table>
   <tr>
@@ -90,128 +132,74 @@ must be recognized and excluded.
 </table>
 
 <p align="center">
-  <img src="docs/screenshots/prize.png" alt="Prize music selection screen" width="820">
+  <img src="docs/screenshots/prize.png" alt="Prize music selection screen" width="850">
 </p>
 
-After completing the puzzle, players can enter the prize screen and choose
-additional music to play.
+## Running the Game in Source Academy
 
-## Gameplay Video
+### Method 1 — Copy from GitHub
 
-Watch or download the complete gameplay demonstration from the
-[Echo Fragments v1.0.0 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0).
+1. Open [`echo-fragments-game.js`](echo-fragments-game.js).
+2. Click **Raw**, or open the file and copy all of its source code.
+3. Open the [Source Academy Playground](https://sourceacademy.org/playground).
+4. Select **JavaScript** as the language.
+5. Select **full JavaScript** as the execution variant.
+6. Delete any existing code and paste the complete game source.
+7. Click **Run**.
+8. Open the **Arcade 2D** display if it is not shown automatically.
+9. Select a difficulty to begin.
 
-[Download the gameplay video (MP4)](https://github.com/JimmyZheng6/echo-fragments/releases/download/v1.0.0/echo-fragments-gameplay.mp4)
+### Method 2 — Use the Release Download
 
-## Gameplay Loop
+1. Open the [v1.0.0 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0).
+2. Under **Assets**, download **Source code (zip)**.
+3. Unzip the downloaded file.
+4. Open `echo-fragments-game.js` with a text editor or code editor.
+5. Copy the entire file.
+6. Paste it into the [Source Academy Playground](https://sourceacademy.org/playground).
+7. Select **JavaScript** and **full JavaScript**, then click **Run**.
 
-1. Choose **Easy**, **Hard**, or **Extreme**.
-2. Listen carefully to the complete song.
-3. Enter the map after the animated countdown.
-4. Explore while avoiding monsters and managing health and stamina.
-5. Press `R` near a fragment to preview its sound.
-6. Press `E` to collect a fragment or enter the sorting stage.
-7. Collect all eight correct fragments and reach the goal.
-8. Preview, compare, and drag the records into the correct sequence.
-9. Submit the sequence to restore the melody.
+### Requirements and Troubleshooting
 
-## Difficulty Levels
+- An internet connection is required because images and audio are loaded from
+  this GitHub repository.
+- No `npm` installation, package manager, or local web server is required.
+- Keep the `import` statement at the beginning of the source file.
+- Keep `build_game()` as the final statement.
+- If music does not start, click inside the game display and press the relevant
+  **Play** button again.
+- If an asset fails to load, confirm that GitHub is accessible and run the
+  program again.
 
-| Difficulty | Correct fragments | Distractor fragments |
-| --- | ---: | ---: |
-| Easy | 8 | 0 |
-| Hard | 8 | 2 |
-| Extreme | 8 | 4 |
+## Main Features
 
-## Controls
+- Animated difficulty-selection and full-song listening scenes
+- Programmed music synthesis and multi-instrument audio
+- Procedurally generated and validated exploration map
+- Wall collision and valid object placement
+- Nearby fragment preview before collection
+- Inventory selection and safe non-overlapping fragment dropping
+- Health, stamina, sprinting, monsters, and a three-life system
+- Two health packs refreshed every 30 seconds
+- Fixed and movable music records
+- Individual audio preview with click-to-play and click-to-stop
+- Randomized fragment labels, colours, and starting arrangements
+- Distractor fragments for Hard and Extreme modes
+- Success, failure, instructions, and prize scenes
 
-| Input | Action |
-| --- | --- |
-| `W` `A` `S` `D` | Move the character |
-| `F` | Sprint while stamina is available |
-| `R` | Preview a nearby music fragment |
-| `E` | Collect a fragment or enter the sorting stage |
-| `Q` | Drop the selected fragment near the character |
-| `1`–`8` | Select an inventory slot |
-| Mouse | Select menus, play audio, drag records, and submit |
-
-Uppercase and lowercase movement keys are both supported.
-
-## Core Features
-
-### Sound
-
-- Functional music synthesis from note-and-duration lists
-- Recursive note-list processing
-- Tempo and volume transformations
-- Two-hand and multi-instrument sound composition
-- Full-song, fragment, distractor, and prize audio
-
-### Map
-
-- Procedural wall and obstacle generation
-- Breadth-first-search route validation
-- Collision and boundary handling
-- Valid fragment, monster, goal, and health-pack placement
-- Two health packs refreshed at random valid positions every 30 seconds
-
-### Character
-
-- WASD movement and stamina-based sprinting
-- Health, damage, recovery, and a three-life system
-- Monster detection, pursuit, and attack behaviour
-- Inventory selection and fragment highlighting
-- Fragment preview, collection, and safe non-overlapping dropping
-
-### Sorting
-
-- State-driven drag-and-drop interaction
-- Slot snapping, swapping, and fixed-fragment protection
-- Click-to-play and click-to-stop audio previews
-- Countdown timer and submission feedback
-- Song identity and musical order validation
-- Randomized labels, colours, starting arrangements, and distractors
-
-### Game Flow
-
-- Animated start menu
-- Three selectable difficulty levels
-- Full-song listening scene with floating music notes
-- Large animated `3–2–1` countdown
-- Exploration and sorting stages
-- Instructions, success, failure, and prize scenes
-
-## Technical Highlights — SICP Concepts in Action
+## Technical Highlights
 
 ### Functional Music Synthesis
 
-Melodies are encoded as note-and-duration lists. Recursive functions transform
-those lists into sine-wave sound functions using the Source Academy `sound`
+Melodies are represented as note-and-duration lists. Recursive functions
+transform those lists into sound functions using the Source Academy `sound`
 module.
 
 ### Higher-Order Sound Composition
 
-The project uses `map`, lambda expressions, recursion, `make_sound`, and
-`get_wave` to process musical data. `consecutively` builds melodic lines, while
-`simultaneously` combines right-hand, left-hand, and multi-instrument parts.
-
-### Unified Fragment Data Abstraction
-
-Every music fragment follows one shared interface:
-
-```text
-[fragment_id, song_id, audio_url]
-```
-
-The map, inventory, preview system, difficulty system, and sorting puzzle all
-consume the same representation.
-
-### Modular Scene and State Management
-
-A shared update loop coordinates the menu, listening, exploration, sorting,
-success, failure, and prize scenes. Explicit state variables manage input
-edges, audio playback, timers, dragging, inventory, health, stamina, monsters,
-and scene transitions.
+The sound system uses `map`, lambda expressions, recursion, `make_sound`, and
+`get_wave`. `consecutively` constructs melodic lines, while `simultaneously`
+combines right-hand, left-hand, and multi-instrument parts.
 
 ### Guaranteed-Playable Procedural Map
 
@@ -219,114 +207,52 @@ Walls and objects are generated algorithmically. Breadth-first search uses a
 queue and visited grid to verify that the player can reach the goal, preventing
 unwinnable maps.
 
-### Identity-Based Sequence Validation
+### State-Driven Character and Scene Systems
 
-The label displayed on a record is separated from its real musical identity.
-Dragging changes only the record's slot, while its `fragment_id`, `song_id`,
-and audio remain attached. Submission reconstructs the sequence by slot and
-validates the real identities rather than the randomized labels.
+A shared update loop coordinates input, movement, collision, inventory,
+stamina, health, monsters, audio, timers, animation, and transitions between
+the menu, listening, map, sorting, success, failure, and prize scenes.
 
-### Interactive Audio-Driven Gameplay
+### Identity-Based Music Validation
 
-Sound is part of the game logic rather than decoration. Players preview
-fragments on the map, compare recordings in the sorting stage, and solve the
-puzzle by listening.
-
-## Fragment and Sorting Data
-
-A map fragment stores its persistent musical identity:
+Each fragment uses a shared representation:
 
 ```text
 [fragment_id, song_id, audio_url]
 ```
 
-A sorting record conceptually contains three layers:
+Each sorting record conceptually contains three layers:
 
-| Layer | Stored data | Purpose |
+| Layer | Data | Purpose |
 | --- | --- | --- |
 | Display | label, colour, shape | What the player sees |
 | Sorting | slot | Where the record currently is |
 | Identity | fragment ID, song ID, audio | What the record really represents |
 
-This separation allows the game to randomize labels and colours without
-changing the real answer.
+Dragging changes the slot but keeps the musical identity attached to the
+record. Submission reconstructs the sequence by slot and validates the real
+fragment IDs instead of the randomized visual labels.
 
 ## Project Structure
 
 ```text
 echo-fragments/
-├── MAP/                         # Map development and earlier stages
-├── assets/                      # Runtime backgrounds and ending artwork
-│   ├── failure.jpg
-│   ├── listening-background.png
-│   ├── prize.jpg
-│   ├── start-menu-background.png
-│   └── success.png
-├── character/                   # Character-system development
+├── MAP/                          # Map prototypes and development stages
+├── assets/                       # Runtime backgrounds and ending artwork
+├── character/                    # Character-system development
 ├── docs/
 │   ├── echo-fragments-poster.pdf
 │   ├── echo-fragments-poster_Page.png
-│   └── screenshots/
-│       ├── failure.jpg
-│       ├── listening-screen.png
-│       ├── map-gameplay.png
-│       ├── prize.png
-│       ├── sorting-gameplay.png
-│       ├── start-menu.png
-│       └── success.png
+│   └── screenshots/              # README gameplay screenshots
 ├── sorting/
-│   └── sorting.js               # Sorting-stage development
+│   └── sorting.js                # Sorting-stage development
 ├── sound/
-│   ├── music_mp3/               # Full song, fragments, and prize audio
+│   ├── music_mp3/                # Full song, fragments, and prize audio
 │   └── ...                       # Sound synthesis source files
-├── echo-fragments-game.js        # Complete integrated game
-├── README.md
+├── echo-fragments-game.js         # Complete integrated game
+├── README.md                      # Project documentation
 └── LICENSE
 ```
-
-## How to Run the Game
-
-Echo Fragments is designed to run inside the
-[Source Academy Playground](https://sourceacademy.org/playground). It is not a
-standalone desktop application, so do not run `echo-fragments-game.js` by
-double-clicking it or by opening it directly in a browser.
-
-### Option 1 — Run Directly from GitHub
-
-1. Open [`echo-fragments-game.js`](echo-fragments-game.js) in this repository.
-2. Click **Raw**, or open the file and copy all of its source code.
-3. Open the [Source Academy Playground](https://sourceacademy.org/playground).
-4. Select **JavaScript** as the language.
-5. Select **full JavaScript** as the execution variant.
-6. Delete any existing code in the editor and paste the complete contents of
-   `echo-fragments-game.js`.
-7. Click **Run**.
-8. Open the **Arcade 2D** game display if it is not shown automatically.
-9. Click **Easy**, **Hard**, or **Extreme** to begin.
-
-### Option 2 — Run from the Downloaded Release
-
-1. Open the
-   [Echo Fragments v1.0.0 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0).
-2. Under **Assets**, download **Source code (zip)**.
-3. Unzip the downloaded file.
-4. Open `echo-fragments-game.js` with a text editor or code editor.
-5. Copy the entire file.
-6. Open the [Source Academy Playground](https://sourceacademy.org/playground).
-7. Select **JavaScript** and **full JavaScript**.
-8. Paste the code, click **Run**, and open the **Arcade 2D** display.
-
-### Important Notes
-
-- Keep the `import` statement at the beginning of the file.
-- Keep `build_game()` as the final statement in the program.
-- The game loads its images and audio from this GitHub repository, so an
-  internet connection is required.
-- No separate installation, `npm` command, or local web server is needed.
-- If the music does not start immediately, click inside the game display and
-  press the relevant **Play** button again.
-- If an asset fails to load, confirm that GitHub is accessible, then run the
-  program again.
 
 ## Project Poster
 
@@ -337,35 +263,32 @@ double-clicking it or by opening it directly in a browser.
 </p>
 
 <p align="center">
-  <a href="docs/echo-fragments-poster.pdf">View or download the full project poster (PDF)</a>
+  <a href="docs/echo-fragments-poster.pdf">
+    View or download the full project poster
+  </a>
 </p>
 
-## Team Contributions
+## Team
 
-| Team member | Main responsibility | Contribution |
+| Team member | Responsibility | Main contribution |
 | --- | --- | --- |
 | [**Lu Jianyi**](https://github.com/jianyilu13-art) | Sound | Music synthesis, note and duration data, sound composition, fragment generation, and audio resources |
 | [**Zheng Yaohan**](https://github.com/JimmyZheng6) | Sorting | Sorting interface, record dragging, audio previews, timers, identity-based validation, and sorting UI |
 | [**Qin Yibin**](https://github.com/qinf9263-design) | Character | Movement, sprint and stamina, health and lives, inventory, collection, dropping, and character interaction |
 | [**Liu Chenyan**](https://github.com/Prof-Liu6) | Map | Procedural map construction, walls, collision, fragment placement, path validation, and map interaction |
 
-## Technology
+## Built With
 
 - JavaScript
-- Source Academy
+- [Source Academy](https://sourceacademy.org/)
 - SICP JS
 - Source Academy `arcade_2d` module
 - Source Academy `sound` module
 - Functional programming, recursion, lists, higher-order functions, and state
 
-## Course Information
-
-**NUS School of Computing**  
-**Summer Workshop 2026**  
-**Structure and Interpretation of Computer Programs (SICP)**
-
 ## License
 
-This project is released under the [MIT License](LICENSE) and was developed for
-educational purposes as the final project of the NUS School of Computing Summer
-Workshop 2026.
+This project is released under the [MIT License](LICENSE).
+
+Echo Fragments was developed for educational purposes as the final project of
+the **NUS School of Computing Summer Workshop 2026**.
