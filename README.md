@@ -10,6 +10,13 @@
 </p>
 
 <p align="center">
+  <strong>Latest Release:</strong>
+  <a href="https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0">
+    Echo Fragments v1.0.0
+  </a>
+</p>
+
+<p align="center">
   <img src="docs/screenshots/start-menu.png" alt="Echo Fragments start menu" width="820">
 </p>
 
@@ -89,8 +96,12 @@ must be recognized and excluded.
 After completing the puzzle, players can enter the prize screen and choose
 additional music to play.
 
-> A gameplay video can be attached to the
-> [GitHub Releases page](https://github.com/JimmyZheng6/echo-fragments/releases).
+## Gameplay Video
+
+Watch or download the complete gameplay demonstration from the
+[Echo Fragments v1.0.0 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0).
+
+[Download the gameplay video (MP4)](https://github.com/JimmyZheng6/echo-fragments/releases/download/v1.0.0/echo-fragments-gameplay.mp4)
 
 ## Gameplay Loop
 
