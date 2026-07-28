@@ -284,16 +284,49 @@ echo-fragments/
 └── LICENSE
 ```
 
-## Running the Game
+## How to Run the Game
 
-1. Open the [Source Academy Playground](https://sourceacademy.org/playground).
-2. Select **JavaScript** and **full JavaScript**.
-3. Copy the contents of `echo-fragments-game.js` into the editor.
-4. Run the program.
-5. Open the game visualizer and choose a difficulty.
+Echo Fragments is designed to run inside the
+[Source Academy Playground](https://sourceacademy.org/playground). It is not a
+standalone desktop application, so do not run `echo-fragments-game.js` by
+double-clicking it or by opening it directly in a browser.
 
-The game loads image and audio resources from this GitHub repository, so an
-internet connection is required.
+### Option 1 — Run Directly from GitHub
+
+1. Open [`echo-fragments-game.js`](echo-fragments-game.js) in this repository.
+2. Click **Raw**, or open the file and copy all of its source code.
+3. Open the [Source Academy Playground](https://sourceacademy.org/playground).
+4. Select **JavaScript** as the language.
+5. Select **full JavaScript** as the execution variant.
+6. Delete any existing code in the editor and paste the complete contents of
+   `echo-fragments-game.js`.
+7. Click **Run**.
+8. Open the **Arcade 2D** game display if it is not shown automatically.
+9. Click **Easy**, **Hard**, or **Extreme** to begin.
+
+### Option 2 — Run from the Downloaded Release
+
+1. Open the
+   [Echo Fragments v1.0.0 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0).
+2. Under **Assets**, download **Source code (zip)**.
+3. Unzip the downloaded file.
+4. Open `echo-fragments-game.js` with a text editor or code editor.
+5. Copy the entire file.
+6. Open the [Source Academy Playground](https://sourceacademy.org/playground).
+7. Select **JavaScript** and **full JavaScript**.
+8. Paste the code, click **Run**, and open the **Arcade 2D** display.
+
+### Important Notes
+
+- Keep the `import` statement at the beginning of the file.
+- Keep `build_game()` as the final statement in the program.
+- The game loads its images and audio from this GitHub repository, so an
+  internet connection is required.
+- No separate installation, `npm` command, or local web server is needed.
+- If the music does not start immediately, click inside the game display and
+  press the relevant **Play** button again.
+- If an asset fails to load, confirm that GitHub is accessible, then run the
+  program again.
 
 ## Project Poster
 
