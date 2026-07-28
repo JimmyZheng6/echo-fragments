@@ -42,7 +42,7 @@ memorizing a fixed visual answer.
 ## Play and Download
 
 - **Latest version:** [Echo Fragments v1.0.1](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1)
-- **Gameplay video:** [Watch or download the MP4](https://github.com/JimmyZheng6/echo-fragments/releases/download/v1.0.0/echo-fragments-gameplay.mp4) (hosted with the v1.0.0 release)
+- **Gameplay video:** [Watch or download the MP4](https://github.com/JimmyZheng6/echo-fragments/releases/download/v1.0.1/echo-fragments-gameplay.mp4)
 - **Source code:** Download **Source code (zip)** from the [v1.0.1 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1)
 - **Project poster:** [View the poster PDF](docs/echo-fragments-poster.pdf)
 
