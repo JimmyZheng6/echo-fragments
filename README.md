@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0">
-    <img src="https://img.shields.io/badge/release-v1.0.0-7057ff" alt="Release v1.0.0">
+  <a href="https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1">
+    <img src="https://img.shields.io/badge/release-v1.0.1-7057ff" alt="Release v1.0.1">
   </a>
   <img src="https://img.shields.io/badge/language-JavaScript-f7df1e" alt="JavaScript">
   <img src="https://img.shields.io/badge/platform-Source%20Academy-1f6feb" alt="Source Academy">
@@ -41,9 +41,9 @@ memorizing a fixed visual answer.
 
 ## Play and Download
 
-- **Latest version:** [Echo Fragments v1.0.0](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0)
-- **Gameplay video:** [Watch or download the MP4](https://github.com/JimmyZheng6/echo-fragments/releases/download/v1.0.0/echo-fragments-gameplay.mp4)
-- **Source code:** Download **Source code (zip)** from the [v1.0.0 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0)
+- **Latest version:** [Echo Fragments v1.0.1](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1)
+- **Gameplay video:** [Watch or download the MP4](https://github.com/JimmyZheng6/echo-fragments/releases/download/v1.0.0/echo-fragments-gameplay.mp4) (hosted with the v1.0.0 release)
+- **Source code:** Download **Source code (zip)** from the [v1.0.1 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1)
 - **Project poster:** [View the poster PDF](docs/echo-fragments-poster.pdf)
 
 > Echo Fragments runs inside the Source Academy Playground. It is not a
@@ -52,8 +52,10 @@ memorizing a fixed visual answer.
 ## How to Play
 
 1. Choose **Easy**, **Hard**, or **Extreme**.
-2. Listen carefully to the complete song.
-3. Enter the map after the animated countdown.
+2. On the listening screen, either click **Play Full Song** to study the
+   complete melody or click **Skip to Map** to begin exploring immediately.
+3. If you listen to the song, the map opens automatically after the animated
+   `3–2–1` countdown.
 4. Explore the map while avoiding monsters.
 5. Press `R` near a fragment to preview its sound.
 6. Press `E` to collect a fragment if you think it belongs to the song.
@@ -90,7 +92,7 @@ Uppercase and lowercase movement keys are both supported.
 
 | Input | Action |
 | --- | --- |
-| Mouse click | Select difficulty, press buttons, preview audio, and submit |
+| Mouse click | Select difficulty, play or skip the song, preview audio, and submit |
 | Mouse drag | Move a record to another sorting slot |
 | Click the active Play button again | Stop the current fragment |
 
@@ -151,7 +153,7 @@ Uppercase and lowercase movement keys are both supported.
 
 ### Method 2 — Use the Release Download
 
-1. Open the [v1.0.0 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.0).
+1. Open the [v1.0.1 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1).
 2. Under **Assets**, download **Source code (zip)**.
 3. Unzip the downloaded file.
 4. Open `echo-fragments-game.js` with a text editor or code editor.
@@ -174,6 +176,7 @@ Uppercase and lowercase movement keys are both supported.
 ## Main Features
 
 - Animated difficulty-selection and full-song listening scenes
+- Optional **Skip to Map** button before, during, or after song playback
 - Programmed music synthesis and multi-instrument audio
 - Procedurally generated and validated exploration map
 - Wall collision and valid object placement
