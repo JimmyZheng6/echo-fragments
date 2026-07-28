@@ -11,6 +11,23 @@ A complete melody has been broken into fragments and scattered across a
 procedurally generated map. Listen to the original song, explore the map,
 preview and collect the correct fragments, then restore the melody before time
 runs out.
+## Project Poster
+
+<p align="center">
+  <a href="./docs/echo-fragments-poster.pdf">
+    <img
+      src="./docs/echo-fragments-poster_Page.png"
+      alt="Echo Fragments Project Poster"
+      width="500"
+    />
+  </a>
+</p>
+
+<p align="center">
+  <a href="./docs/echo-fragments-poster.pdf">
+    Download the full project poster as PDF
+  </a>
+</p>
 
 ## Gameplay
 
