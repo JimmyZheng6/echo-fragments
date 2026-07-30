@@ -11,9 +11,14 @@
 </p>
 
 <p align="center">
+  <strong>🏆 Gold Prize (First Place)</strong>
+</p>
+
+<p align="center">
   <a href="https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1">
     <img src="https://img.shields.io/badge/release-v1.0.1-7057ff" alt="Release v1.0.1">
   </a>
+  <img src="https://img.shields.io/badge/award-Gold%20Prize%20%7C%20First%20Place-d4af37" alt="Gold Prize (First Place)">
   <img src="https://img.shields.io/badge/language-JavaScript-f7df1e" alt="JavaScript">
   <img src="https://img.shields.io/badge/platform-Source%20Academy-1f6feb" alt="Source Academy">
   <a href="LICENSE">
