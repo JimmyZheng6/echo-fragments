@@ -11,14 +11,15 @@
 </p>
 
 <p align="center">
-  <strong>🏆 Gold Prize (First Place)</strong>
+  <strong>🏆 Gold Prize — First Place</strong><br>
+  SICP Final Project Competition
 </p>
 
 <p align="center">
   <a href="https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1">
     <img src="https://img.shields.io/badge/release-v1.0.1-7057ff" alt="Release v1.0.1">
   </a>
-  <img src="https://img.shields.io/badge/award-Gold%20Prize%20%7C%20First%20Place-d4af37" alt="Gold Prize (First Place)">
+  <img src="https://img.shields.io/badge/award-Gold%20Prize%20%7C%20First%20Place-FFD700" alt="Gold Prize — First Place">
   <img src="https://img.shields.io/badge/language-JavaScript-f7df1e" alt="JavaScript">
   <img src="https://img.shields.io/badge/platform-Source%20Academy-1f6feb" alt="Source Academy">
   <a href="LICENSE">
@@ -29,6 +30,16 @@
 <p align="center">
   <img src="docs/screenshots/start-menu.png" alt="Echo Fragments start menu" width="850">
 </p>
+
+## Awards
+
+🏆 **Gold Prize (First Place)** — NUS School of Computing Summer Workshop 2026,
+Structure and Interpretation of Computer Programs (SICP) Final Project
+Competition.
+
+Echo Fragments received the highest project award for its integration of
+functional music synthesis, procedural exploration, interactive gameplay, and
+audio-driven puzzle design.
 
 ## About the Game
 
