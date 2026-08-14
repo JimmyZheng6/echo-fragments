@@ -16,8 +16,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1">
-    <img src="https://img.shields.io/badge/release-v1.0.1-7057ff" alt="Release v1.0.1">
+  <a href="https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.1.0">
+    <img src="https://img.shields.io/badge/release-v1.1.0-7057ff" alt="Release v1.1.0">
   </a>
   <img src="https://img.shields.io/badge/award-Gold%20Prize%20%7C%20First%20Place-FFD700" alt="Gold Prize — First Place">
   <img src="https://img.shields.io/badge/language-JavaScript-f7df1e" alt="JavaScript">
@@ -59,11 +59,14 @@ listening instead of memorizing a fixed visual answer.
 
 ## Quick Links
 
-- **Latest published release:** [Echo Fragments v1.0.1](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1)
-- **Gameplay video:** [Watch or download the MP4](https://github.com/JimmyZheng6/echo-fragments/releases/download/v1.0.1/echo-fragments-gameplay.mp4)
+- **Latest published release:** [Echo Fragments v1.1.0](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.1.0)
+- **Gameplay video:** [Open the latest Release and download the gameplay video](https://github.com/JimmyZheng6/echo-fragments/releases/latest)
 - **Download the project:** Use **Code → Download ZIP** on the repository page, or clone the repository with Git
 - **Project poster:** [View the poster PDF](docs/echo-fragments-poster.pdf)
 - **Original Source Academy program:** [`echo-fragments-game.js`](echo-fragments-game.js)
+
+> **Version 1.1.0** packages Echo Fragments as a standalone Node.js project,
+> allowing the game to run locally on both Windows and macOS with Vite.
 
 ## Run the Game Locally
 
