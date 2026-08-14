@@ -433,8 +433,10 @@ echo-fragments/
 
 - NUS School of Computing Summer Workshop 2026 instructors, teaching
   assistants, organizers, and classmates
-- Special thanks to Brian for adapting and packaging the original Source
-  Academy project as a Node.js/Vite application
+- Special thanks to [**Brian (SKCheongBrian)**](https://github.com/SKCheongBrian)
+  for adapting and packaging our original Source Academy project as a
+  standalone Node.js/Vite application, making Echo Fragments easier to install
+  and run locally on Windows and macOS
 
 ## License
 
