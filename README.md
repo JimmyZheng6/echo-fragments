@@ -153,41 +153,51 @@ Uppercase and lowercase movement keys are both supported.
   <img src="docs/screenshots/prize.png" alt="Prize music selection screen" width="850">
 </p>
 
-## Running the Game in Source Academy
+## Run the Game Locally
 
-### Method 1 — Copy from GitHub
+### Requirements
 
-1. Open [`echo-fragments-game.js`](echo-fragments-game.js).
-2. Click **Raw**, or open the file and copy all of its source code.
-3. Open the [Source Academy Playground](https://sourceacademy.org/playground).
-4. Select **JavaScript** as the language.
-5. Select **full JavaScript** as the execution variant.
-6. Delete any existing code and paste the complete game source.
-7. Click **Run**.
-8. Open the **Arcade 2D** display if it is not shown automatically.
-9. Select a difficulty to begin.
+- Node.js 22
+- npm
 
-### Method 2 — Use the Release Download
+### Installation
 
-1. Open the [v1.0.1 Release](https://github.com/JimmyZheng6/echo-fragments/releases/tag/v1.0.1).
-2. Under **Assets**, download **Source code (zip)**.
-3. Unzip the downloaded file.
-4. Open `echo-fragments-game.js` with a text editor or code editor.
-5. Copy the entire file.
-6. Paste it into the [Source Academy Playground](https://sourceacademy.org/playground).
-7. Select **JavaScript** and **full JavaScript**, then click **Run**.
+Clone the repository:
 
-### Requirements and Troubleshooting
+```bash
+git clone https://github.com/JimmyZheng6/echo-fragments.git
+cd echo-fragments
+```
 
-- An internet connection is required because images and audio are loaded from
-  this GitHub repository.
-- No `npm` installation, package manager, or local web server is required.
-- Keep the `import` statement at the beginning of the source file.
-- Keep `build_game()` as the final statement.
-- If music does not start, click inside the game display and press the relevant
-  **Play** button again.
-- If an asset fails to load, confirm that GitHub is accessible and run the
-  program again.
+Install the dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open the local URL displayed in the terminal, usually:
+
+```text
+http://localhost:5173
+```
+
+## Source Academy Version
+
+The original Source Academy version is preserved in
+[`echo-fragments-game.js`](./echo-fragments-game.js).
+
+To run this version:
+
+1. Open the Source Academy Playground.
+2. Select **Full JavaScript**.
+3. Copy the contents of `echo-fragments-game.js`.
+4. Paste and run the program.
 
 ## Main Features
 
